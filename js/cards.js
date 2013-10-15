@@ -1,6 +1,32 @@
-var lastStoryId = CardTool.Util.defaultStoryId;
-var lastProjectId = CardTool.Util.defaultProjectId;
-var lastIssueId = CardTool.Util.defaultIssueId;
+/*
+ Agile Caterpillar - v0.1
+ https://github.com/v-leo/agile-caterpillar
+
+ The MIT License (MIT)
+
+ Copyright (c) 2013 Vladimir Leontyev
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+var lastStoryId = Caterpillar.Util.defaultStoryId;
+var lastProjectId = Caterpillar.Settings.defaultProjectId;
+var lastIssueId = Caterpillar.Settings.defaultIssueId;
 
 var MESSAGE_NULL_STORY_ID = "Please open story or create new one.";
 var TITLE_NULL_STORY_ID = "Story id is not defined";
@@ -16,12 +42,12 @@ $(document).ready(function () {
     initTasksContainer();
     initHotKeys();
 
-    if (CardTool.DomService.isShowDisabledCards()) {
-        CardTool.DomService.getStoryPage().printable({items: "li.card-item,div.story-item"});
+    if (Caterpillar.DomService.isShowDisabledCards()) {
+        Caterpillar.DomService.getStoryPage().ctPrintable({items: "li.card-item,div.story-item"});
     } else {
-        CardTool.DomService.getStoryPage().printable({items: "li.card-item:not(.disabled-card),div.story-item"});
+        Caterpillar.DomService.getStoryPage().ctPrintable({items: "li.card-item:not(.disabled-card),div.story-item"});
     }
-    CardTool.Core.restoreStoryFromStorage();
+    Caterpillar.Core.restoreStoryFromStorage();
 });
 
 function initCSS() {
@@ -47,58 +73,58 @@ function initCSS() {
 }
 
 function initTasksContainer() {
-    CardTool.DomService.getTasksContainer().sortable({
+    Caterpillar.DomService.getTasksContainer().sortable({
         items: "li.card-item",
-        handle:"div.card-header",
+        handle:"div.card-label",
         tolerance:"pointer",
         scroll:true,
         update:function () {
-            CardTool.Core.updateTaskIndexes();
-            CardTool.DomService.getStoryPage().printable("refresh");
-            CardTool.Storage.updateLocalStorage(CardTool.Core.currentStoryToJson());
+            Caterpillar.Core.updateTaskIndexes();
+            Caterpillar.DomService.getStoryPage().ctPrintable("refresh");
+            Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
         }});
 }
 
 
 function initCardsBehaviour() {
-    var storyCard = CardTool.DomService.getStoryCard();
+    var storyCard = Caterpillar.DomService.getStoryCard();
 
-    CardTool.Core.makeCardResizable(storyCard);
+    Caterpillar.Core.makeCardResizable(storyCard);
     initStoryToolbar();
 
-    CardTool.DomService.getShowDisabledSwitcher().click(function () {
-        CardTool.Core.setShowDisabledCards(!CardTool.DomService.isShowDisabledCards());
+    Caterpillar.DomService.getShowDisabledSwitcher().click(function () {
+        Caterpillar.Core.setShowDisabledCards(!Caterpillar.DomService.isShowDisabledCards());
     });
 
-    CardTool.DomService.getShowTotalInfoSwitcher().click(function () {
-        CardTool.DomService.showTotalEstimation();
+    Caterpillar.DomService.getShowTotalInfoSwitcher().click(function () {
+        Caterpillar.DomService.showTotalEstimation();
     });
 
-    CardTool.DomService.getShowEnabledInfoSwitcher().click(function () {
-        CardTool.DomService.showEnabledEstimation();
+    Caterpillar.DomService.getShowEnabledInfoSwitcher().click(function () {
+        Caterpillar.DomService.showEnabledEstimation();
     });
 
-    CardTool.DomService.getCardIdSpan(storyCard).click(
+    Caterpillar.DomService.getCardIdSpan(storyCard).click(
         function (event) {
             if (!event.ctrlKey && !event.shiftKey) {
                 startEditStoryId();
             }
         });
-
-    CardTool.DomService.__getAllCardEstimationSpans__().live("click",
+//
+    /*Caterpillar.DomService.__getAllCardEstimationSpans__().live("click",
         function (event) {
             if (!event.ctrlKey && !event.shiftKey) {
                 startEditEstimation($(this));
             }
-        });
+        });*/
 
-    var startPosition = {x:0, y:0};
+    /*var startPosition = {x:0, y:0};
     var started = false;
     $(document).mouseup(function (e) {
         started = false;
         startPosition = null;
-    });
-    CardTool.DomService.__getAllCardContentTds__()
+    });*/
+    /*Caterpillar.DomService.__getAllCardContentTds__()
         .live("mousedown",
         function (event) {
             if (event.which == 1) {
@@ -115,226 +141,226 @@ function initCardsBehaviour() {
                 Math.abs(startPosition.y - event.pageY) < 7) {
                 startEditCardDescription($(this));
             }
-        });
+        });*/
 
-    CardTool.DomService.getStoryIdInput()
+    Caterpillar.DomService.getStoryIdInput()
         .keydown(function (event) {
             if (event.which == 13) {
                 finishEditStoryId($(this));
-                CardTool.DomService.getStoryIdInput().autocomplete("close");
+                Caterpillar.DomService.getStoryIdInput().autocomplete("close");
                 return false;
             } else if (event.which == 27) {
-                CardTool.DomService.cancelEditing($(this));
-                CardTool.DomService.getStoryIdInput().autocomplete("close").val(lastStoryId);
+                Caterpillar.DomService.cancelEditing($(this));
+                Caterpillar.DomService.getStoryIdInput().autocomplete("close").val(lastStoryId);
             } else {
-                return event.which < 48 || event.which == 189 || CardTool.Util.isAlphanumeric(String.fromCharCode(event.which));
+                return event.which < 48 || event.which == 189 || Caterpillar.Util.isAlphanumeric(String.fromCharCode(event.which));
             }
         })
         .blur(function () {
-            CardTool.DomService.cancelEditing($(this));
-            CardTool.DomService.getStoryIdInput().val(lastStoryId);
+            Caterpillar.DomService.cancelEditing($(this));
+            Caterpillar.DomService.getStoryIdInput().val(lastStoryId);
         });
 
-    CardTool.DomService.__getAllCardEstimationInputs__()
+    /*Caterpillar.DomService.__getAllCardEstimationInputs__()
         .live("keydown", function (event) {
             if (event.which == 13) {
                 finishEditEta($(this));
                 return false;
             } else if (event.which == 27) {
-                CardTool.DomService.cancelEditing($(this));
+                Caterpillar.DomService.cancelEditing($(this));
                 return false;
             } else {
-                return event.which < 48 || CardTool.Util.isNumber(String.fromCharCode(event.which));
+                return event.which < 48 || Caterpillar.Util.isNumber(String.fromCharCode(event.which));
             }
         })
         .live("blur", function () {
-            CardTool.DomService.cancelEditing($(this));
-        });
+            Caterpillar.DomService.cancelEditing($(this));
+        });*/
 
-    CardTool.DomService.__getAllCardTextareas__()
+    /*Caterpillar.DomService.__getAllCardTextareas__()
         .live("keydown", function (event) {
             if (event.which == 13 && event.ctrlKey) {
                 finishEditCardDescription($(this));
                 return false;
             } else if (event.which == 27) {
-                CardTool.DomService.cancelEditing($(this));
+                Caterpillar.DomService.cancelEditing($(this));
                 return false;
             }
             return true;
         })
         .live("blur", function () {
-            CardTool.DomService.cancelEditing($(this));
-        });
+            Caterpillar.DomService.cancelEditing($(this));
+        });*/
 }
 
 function initStoryToolbar() {
-    var buttonSet = CardTool.DomService.getCardToolbarButtonSet(CardTool.DomService.getStoryCard());
-    CardTool.DomService.getAddNewToRightButton(buttonSet).button(
+    var buttonSet = Caterpillar.DomService.getCardToolbarButtonSet(Caterpillar.DomService.getStoryCard());
+    Caterpillar.DomService.getAddNewToRightButton(buttonSet).button(
         {label:"New",
             icons:{
                 secondary:"ui-icon-triangle-1-e"
             }
         }
     ).click(function () {
-            CardTool.Core.addNewCardIfStoryIdValid(true);
+            Caterpillar.Core.addNewCardIfStoryIdValid(true);
         });
 
-    CardTool.DomService.getRemoveStoryButton(buttonSet).button(
+    Caterpillar.DomService.getRemoveStoryButton(buttonSet).button(
         {label:"Remove",
             icons:{
                 primary:"ui-icon-trash"
             }
         }).click(function () {
-            CardTool.Util.confirm(MESSAGE_REMOVE_STORY, TITLE_REMOVE_STORY, removeCurrentStory);
+            Caterpillar.Util.confirm(MESSAGE_REMOVE_STORY, TITLE_REMOVE_STORY, removeCurrentStory);
         });
 
-    CardTool.DomService.getColorButton(buttonSet).button(
+    Caterpillar.DomService.getColorButton(buttonSet).button(
         {label:"Color",
             icons:{
                 primary:"ui-icon-tag"
             }
         }).click(function (event) {
-            CardTool.ContextMenu.showCardColorContextMenu(event, CardTool.DomService.getCardByChild($(this)));
+            Caterpillar.ContextMenu.showCardColorContextMenu(event, Caterpillar.DomService.getCardByChild($(this)));
         });
 
     buttonSet.buttonset();
 }
 
 function initHotKeys() {
-    if (CardTool.HotKeys) {
-        CardTool.HotKeys.registerHotKey({
+    if (Caterpillar.HotKeys) {
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:78,
             shiftKey:true,
-            callback:CardTool.Core.addNewCardIfStoryIdValid,
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            callback:Caterpillar.Core.addNewCardIfStoryIdValid,
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
 
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:79,
             shiftKey:true,
             callback:function () {
                 event.stopPropagation();
                 startEditStoryId();
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
 
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:[107, 187],
             shiftKey:true,
             callback:function () {
-                CardTool.Core.setShowDisabledCards(true);
+                Caterpillar.Core.setShowDisabledCards(true);
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
 
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:[109, 189],
             shiftKey:true,
             callback:function () {
-                CardTool.Core.setShowDisabledCards(false);
+                Caterpillar.Core.setShowDisabledCards(false);
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
     }
 }
 
 
 function updateStoryHistory() {
-    if (CardTool.History) {
-        CardTool.History.addToStoryHistory(CardTool.DomService.getStoryIdValueInput().val(),
-            CardTool.DomService.getCardDescriptionValueInput(CardTool.DomService.getStoryCard()).val());
+    if (Caterpillar.History) {
+        Caterpillar.History.addToStoryHistory(Caterpillar.DomService.getStoryIdValueInput().val(),
+            Caterpillar.DomService.getCardDescriptionValueInput(Caterpillar.DomService.getStoryCard()).val());
     }
 }
 
-function startEditCardDescription(triggerElement) {
-    var card = CardTool.DomService.getCardByChild(triggerElement);
+/*function startEditCardDescription(triggerElement) {
+    var card = Caterpillar.DomService.getCardByChild(triggerElement);
     if (card.length) {
-        var textarea = CardTool.DomService.getCardDescriptionTextarea(card);
-        CardTool.DomService.startEditInputOrTextarea(textarea);
+        var textarea = Caterpillar.DomService.getCardDescriptionTextarea(card);
+        Caterpillar.DomService.startEditInputOrTextarea(textarea);
         var textLength = textarea[0].value.length;
         textarea[0].setSelectionRange(textLength, textLength);
         textarea.scrollTop(textarea[0].scrollHeight);
     }
-}
+}*/
 
-function startEditEstimation(etaSpan) {
-    var card = CardTool.DomService.getCardByChild(etaSpan);
-    if (CardTool.DomService.isStoryCard(card) && CardTool.DomService.getAllCardsNoCondition().length > 0) {
-        CardTool.Util.alertWarn("You can change story estimation only for empty story.");
+/*function startEditEstimation(etaSpan) {
+    var card = Caterpillar.DomService.getCardByChild(etaSpan);
+    if (Caterpillar.DomService.isStoryCard(card) && Caterpillar.DomService.getAllCardsNoCondition().length > 0) {
+        Caterpillar.Util.alertWarn("You can change story estimation only for empty story.");
     } else {
-        var input = CardTool.DomService.getCardEtaInput(card);
-        CardTool.DomService.startEditInputOrTextarea(input);
+        var input = Caterpillar.DomService.getCardEtaInput(card);
+        Caterpillar.DomService.startEditInputOrTextarea(input);
         input.focus();
         input.select();
     }
-}
+}*/
 
 function startEditStoryId() {
-    var input = CardTool.DomService.getStoryIdInput();
-    CardTool.DomService.startEditInputOrTextarea(input);
+    var input = Caterpillar.DomService.getStoryIdInput();
+    Caterpillar.DomService.startEditInputOrTextarea(input);
     input.focus();
-    var dashIndex = input.val().indexOf(CardTool.Util.DASH);
+    var dashIndex = input.val().indexOf(Caterpillar.Util.DASH);
     if (dashIndex > -1) {
         input[0].setSelectionRange(dashIndex + 1, input.val().length);
     }
 }
 
 function finishEditStoryId(input) {
-    CardTool.DomService.cancelEditing(input);
+    Caterpillar.DomService.cancelEditing(input);
 
-    var value = CardTool.Util.checkAndFixStoryIdValue(input.val().trim().toUpperCase());
-    CardTool.Storage.updateLastStoryId(value);
+    var value = Caterpillar.Util.checkAndFixStoryIdValue(input.val().trim().toUpperCase());
+    Caterpillar.Storage.updateLastStoryId(value);
 
-    CardTool.DomService.getCardIdSpan(CardTool.DomService.getStoryCard()).html(lastStoryId);
-    CardTool.Storage.updateLocalStorage(CardTool.Core.currentStoryToJson());
-    CardTool.Core.restoreStoryFromStorage(lastStoryId);
+    Caterpillar.DomService.getCardIdSpan(Caterpillar.DomService.getStoryCard()).html(lastStoryId);
+    Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
+    Caterpillar.Core.restoreStoryFromStorage(lastStoryId);
     updateStoryHistory();
 }
 
-function finishEditEta(input) {
-    CardTool.DomService.cancelEditing(input);
+/*function finishEditEta(input) {
+    Caterpillar.DomService.cancelEditing(input);
 
-    var card = CardTool.DomService.getCardByChild(input);
+    var card = Caterpillar.DomService.getCardByChild(input);
 
-    var inputVal = CardTool.Util.checkAndFixNumberValue(input.val());
-    var spanText = CardTool.Util.estimationToString(inputVal);
+    var inputVal = Caterpillar.Util.checkAndFixNumberValue(input.val());
+    var spanText = Caterpillar.Util.estimationToString(inputVal);
 
-    CardTool.DomService.getCardEtaSpan(card).html(spanText);
-    CardTool.DomService.getCardEtaValueInput(card).val(inputVal);
+    Caterpillar.DomService.getCardEtaSpan(card).html(spanText);
+    Caterpillar.DomService.getCardEtaValueInput(card).val(inputVal);
 
-    if (!CardTool.DomService.isStoryCard(card)) {
+    if (!Caterpillar.DomService.isStoryCard(card)) {
         //noinspection JSCheckFunctionSignatures
-        CardTool.Core.updateTotalEstimation();
+        Caterpillar.Core.updateTotalEstimation();
     }
 
-    CardTool.Storage.updateLocalStorage(CardTool.Core.currentStoryToJson());
-}
+    Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
+}*/
 
-function finishEditCardDescription(textarea) {
-    CardTool.DomService.cancelEditing(textarea);
-    var card = CardTool.DomService.getCardByChild(textarea);
+/*function finishEditCardDescription(textarea) {
+    Caterpillar.DomService.cancelEditing(textarea);
+    var card = Caterpillar.DomService.getCardByChild(textarea);
 
-    var div = CardTool.DomService.getCardContentDiv(card);
-    div.html(CardTool.Util.descriptionToHtml(textarea[0].value));
+    var div = Caterpillar.DomService.getCardContentDiv(card);
+    div.html(Caterpillar.Util.descriptionToHtml(textarea[0].value));
 
-    CardTool.Core.autoFitDescription(card);
-    CardTool.DomService.getCardDescriptionValueInput(card).val(textarea[0].value);
+    Caterpillar.Core.autoFitDescription(card);
+    Caterpillar.DomService.getCardDescriptionValueInput(card).val(textarea[0].value);
 
-    if (CardTool.DomService.isStoryCard(card)) {
+    if (Caterpillar.DomService.isStoryCard(card)) {
         updateStoryHistory();
     }
-    CardTool.Storage.updateLocalStorage(CardTool.Core.currentStoryToJson());
-}
+    Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
+}*/
 
 function removeCurrentStory() {
-    if (CardTool.Util.isNotEmptyIssueId(lastIssueId)) {
-        CardTool.Storage.deleteStoryFromStorage(lastStoryId);
-        if (CardTool.History) {
-            CardTool.History.deleteFromStoryHistory(lastStoryId);
+    if (Caterpillar.Util.isNotEmptyIssueId(lastIssueId)) {
+        Caterpillar.Storage.deleteStoryFromStorage(lastStoryId);
+        if (Caterpillar.History) {
+            Caterpillar.History.deleteFromStoryHistory(lastStoryId);
         }
     }
 
-    var newStory = CardTool.Util.generateStoryId(lastProjectId, CardTool.Util.defaultIssueId);
-    CardTool.Core.restoreStoryFromStorage(newStory);
+    var newStory = Caterpillar.Util.generateStoryId(lastProjectId, Caterpillar.Settings.defaultIssueId);
+    Caterpillar.Core.restoreStoryFromStorage(newStory);
 }

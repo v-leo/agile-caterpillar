@@ -1,9 +1,36 @@
+/*
+ Agile Caterpillar - v0.1
+ https://github.com/v-leo/agile-caterpillar
+
+ The MIT License (MIT)
+
+ Copyright (c) 2013 Vladimir Leontyev
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+
 $(document).ready(function () {
-    CardTool.ExpImp.__initExportImportDialogs__();
-    CardTool.ExpImp.__initHotKeys__();
+    Caterpillar.ExpImp.__initExportImportDialogs__();
+    Caterpillar.ExpImp.__initHotKeys__();
 });
 
-CardTool.ExpImp = new function () {
+Caterpillar.ExpImp = new function () {
     var _this = this;
 
     //Need for tests
@@ -65,19 +92,19 @@ CardTool.ExpImp = new function () {
     };
 
     this.__initHotKeys__ = function() {
-        if (CardTool.HotKeys) {
-            CardTool.HotKeys.registerHotKey({
+        if (Caterpillar.HotKeys) {
+            Caterpillar.HotKeys.registerHotKey({
                 keyCode: 69,
                 shiftKey: true,
                 callback: _this.openExportDialog,
-                condition: CardTool.HotKeys.notInputNotTextareaNotOverlay
+                condition: Caterpillar.HotKeys.notInputNotTextareaNotOverlay
             });
 
-            CardTool.HotKeys.registerHotKey({
+            Caterpillar.HotKeys.registerHotKey({
                 keyCode: 73,
                 shiftKey: true,
                 callback: _this.openImportDialog,
-                condition: CardTool.HotKeys.notInputNotTextareaNotOverlay
+                condition: Caterpillar.HotKeys.notInputNotTextareaNotOverlay
             });
         }
     };
@@ -142,9 +169,9 @@ CardTool.ExpImp = new function () {
             var input = _this.__getImportAppendAfterInput__();
             if ($("#import-rule-append-after").is(":checked") == true) {
                 input.prop('disabled', false).removeClass("ui-state-disabled");
-                _this.__getImportAppendAfterInput__().val(CardTool.DomService.getAllCardsNoCondition().length);
+                _this.__getImportAppendAfterInput__().val(Caterpillar.DomService.getAllCardsNoCondition().length);
                 input.focus();
-                CardTool.Util.setInputSelection(input[0], 0, input.val().length);
+                Caterpillar.Util.setInputSelection(input[0], 0, input.val().length);
             } else {
                 input.prop('disabled', true).addClass("ui-state-disabled");
             }
@@ -155,7 +182,7 @@ CardTool.ExpImp = new function () {
                 _this.__getImportDialog__().parents(".ui-dialog").find(".ui-dialog-buttonpane button:first-child").focus();
                 return false;
             } else {
-                return event.which < 48 || CardTool.Util.isNumber(String.fromCharCode(event.which));
+                return event.which < 48 || Caterpillar.Util.isNumber(String.fromCharCode(event.which));
             }
         });
 
@@ -166,7 +193,7 @@ CardTool.ExpImp = new function () {
         });
 
 
-        var buttonSet = CardTool.DomService.getCardToolbarButtonSet(CardTool.DomService.getStoryCard());
+        var buttonSet = Caterpillar.DomService.getCardToolbarButtonSet(Caterpillar.DomService.getStoryCard());
         var importButton = $('<button class="import" title="Import stories or tasks (Shift+I)">Imp</button>');
         buttonSet.prepend(importButton);
         importButton.button(
@@ -175,7 +202,7 @@ CardTool.ExpImp = new function () {
                     primary:"ui-icon-arrowreturnthick-1-s"
                 }
             }).click(function () {
-                CardTool.ExpImp.openImportDialog();
+                Caterpillar.ExpImp.openImportDialog();
             });
 
         var exportButton = $('<button class="export" title="Export story to wiki/text/json (Shift+E)">Exp</button>');
@@ -186,7 +213,7 @@ CardTool.ExpImp = new function () {
                     primary:"ui-icon-arrowreturnthick-1-n"
                 }
             }).click(function () {
-                CardTool.ExpImp.openExportDialog();
+                Caterpillar.ExpImp.openExportDialog();
             });
     };
 
@@ -197,7 +224,7 @@ CardTool.ExpImp = new function () {
 
         if (range == "all") {
             if (!exportHolder.jsonAll) {
-                var stories = CardTool.Storage.getAllStoriesFromStorage();
+                var stories = Caterpillar.Storage.getAllStoriesFromStorage();
                 exportHolder.jsonAll = stories;
                 exportHolder.jsonAllStr = JSON.stringify(stories)
                     .replace(/\]\},\{/g, "]},\n\n{")
@@ -207,13 +234,13 @@ CardTool.ExpImp = new function () {
             text = exportHolder.jsonAllStr;
         } else {
             if (!exportHolder.json) {
-                exportHolder.json = CardTool.Storage.getStoryFromStorage(lastStoryId);
+                exportHolder.json = Caterpillar.Storage.getStoryFromStorage(lastStoryId);
                 exportHolder.jsonStr = JSON.stringify(exportHolder.json);
             }
             text = exportHolder.jsonStr;
         }
 
-        if (exportFormat == FORMAT.WIKI || (!CardTool.WikiConverter && exportFormat == FORMAT.TEXT)) {
+        if (exportFormat == FORMAT.WIKI || (!Caterpillar.WikiConverter && exportFormat == FORMAT.TEXT)) {
             if (range == "all") {
                 if (!exportHolder.wikiAll) {
                     exportHolder.wikiAll = _this.__generateExportWiki__(exportHolder.jsonAll, false);
@@ -248,7 +275,7 @@ CardTool.ExpImp = new function () {
         for (var j = 0; j < stories.length; j++) {
             var story = stories[j];
             var text = "";
-            var header = "'''" + story.id + " - " + CardTool.Util.estimationToString(story.eta) + "'''\n" +
+            var header = "'''" + story.id + " - " + Caterpillar.Util.estimationToString(story.eta) + "'''\n" +
                 story.description.replace(/\s+$/g, "").replace(/(^|\n)/g, "$1>") + "\n";
             var tasks = story.tasks;
             for (var i = 0; i < tasks.length; i++) {
@@ -258,7 +285,7 @@ CardTool.ExpImp = new function () {
                     if (cardDescription) {
                         cardDescription = cardDescription.replace(/\n/g, "\n>") + "\n>";
                     }
-                    text = text + "'''" + (i + 1) + ".''' " + cardDescription + "'''" + CardTool.Util.estimationToString(card.eta) + "'''\n";
+                    text = text + "'''" + (i + 1) + ".''' " + cardDescription + "'''" + Caterpillar.Util.estimationToString(card.eta) + "'''\n";
                 }
             }
             resultText = resultText + header + text + "\n--------------------------------------------------\n";
@@ -272,20 +299,20 @@ CardTool.ExpImp = new function () {
         for (var j = 0; j < stories.length; j++) {
             var story = stories[j];
             var text = "";
-            var header = story.id + " - " + CardTool.Util.estimationToString(story.eta) + "\n" +
-                _this.__addIndentIfNecessary__(CardTool.WikiConverter.wikiToText(story.description), indent).replace(/\s+$/g, "") + "\n";
+            var header = story.id + " - " + Caterpillar.Util.estimationToString(story.eta) + "\n" +
+                _this.__addIndentIfNecessary__(Caterpillar.WikiConverter.wikiToText(story.description), indent).replace(/\s+$/g, "") + "\n";
             var tasks = story.tasks;
             for (var i = 0; i < tasks.length; i++) {
                 var card = tasks[i];
                 if (!excludeDisabled || !card.disabled) {
                     var cardDescription =
-                        _this.__addIndentIfNecessary__(CardTool.WikiConverter.wikiToText(card.description)
+                        _this.__addIndentIfNecessary__(Caterpillar.WikiConverter.wikiToText(card.description)
                             .replace(/^(((\d+|[a-zA-Z])[\.\)])|\-)/g, "\n$1"), indent)
                             .replace(/\s+$/g, "");
                     if (cardDescription) {
                         cardDescription = cardDescription + "\n  ";
                     }
-                    text = text + (i + 1) + ". " + cardDescription + CardTool.Util.estimationToString(card.eta) + "\n";
+                    text = text + (i + 1) + ". " + cardDescription + Caterpillar.Util.estimationToString(card.eta) + "\n";
                 }
             }
             resultText = resultText + header + text + "\n--------------------------------------------------\n";
@@ -303,7 +330,7 @@ CardTool.ExpImp = new function () {
 
     this.__importStory__ = function (story, taskAddRule, appendAfterIndex) {
         if (story) {
-            var existedStory = CardTool.Storage.getStoryFromStorage(story.id);
+            var existedStory = Caterpillar.Storage.getStoryFromStorage(story.id);
             if (existedStory) {
                 if (story.description) {
                     existedStory.description = story.description;
@@ -311,13 +338,13 @@ CardTool.ExpImp = new function () {
                 var existedTasks = existedStory.tasks;
                 if (taskAddRule == ADD_ACTION.PREPEND || (taskAddRule == ADD_ACTION.APPEND_AFTER && !appendAfterIndex)) {
                     existedStory.tasks = story.tasks.concat(existedTasks);
-                    existedStory.eta = CardTool.Util.addEstimation(existedStory.eta, story.eta);
+                    existedStory.eta = Caterpillar.Util.addEstimation(existedStory.eta, story.eta);
                 } else if (taskAddRule == ADD_ACTION.APPEND || (taskAddRule == ADD_ACTION.APPEND_AFTER && appendAfterIndex >= existedTasks.length)) {
                     existedStory.tasks = existedTasks.concat(story.tasks);
-                    existedStory.eta = CardTool.Util.addEstimation(existedStory.eta, story.eta);
+                    existedStory.eta = Caterpillar.Util.addEstimation(existedStory.eta, story.eta);
                 } else if (taskAddRule == ADD_ACTION.APPEND_AFTER) {
                     Array.prototype.splice.apply(existedStory.tasks, [appendAfterIndex, 0].concat(story.tasks));
-                    existedStory.eta = CardTool.Util.addEstimation(existedStory.eta, story.eta);
+                    existedStory.eta = Caterpillar.Util.addEstimation(existedStory.eta, story.eta);
                 } else {
                     existedStory.tasks = story.tasks;
                     existedStory.eta = story.eta;
@@ -325,10 +352,10 @@ CardTool.ExpImp = new function () {
             } else {
                 existedStory = story;
             }
-            CardTool.Storage.updateLocalStorage(existedStory);
+            Caterpillar.Storage.saveOrUpdateStory(existedStory);
 
-            if (CardTool.History) {
-                CardTool.History.addToStoryHistory(existedStory.id, existedStory.description);
+            if (Caterpillar.History) {
+                Caterpillar.History.addToStoryHistory(existedStory.id, existedStory.description);
             }
         }
     };
@@ -342,7 +369,7 @@ CardTool.ExpImp = new function () {
             json = JSON.parse(jsonString);
             return json;
         } catch (err) {
-            CardTool.Util.alertError("Wrong json: " + err.message);
+            Caterpillar.Util.alertError("Wrong json: " + err.message);
             return null;
         }
     };
@@ -353,7 +380,7 @@ CardTool.ExpImp = new function () {
         for (var i = 0; i < storyLines.length; i++) {
             var line = storyLines[i].trim();
             if (line.length > 0) {
-                var story = CardTool.Util.parseStringToJsonStory(line, true, true, true);
+                var story = Caterpillar.Util.parseStringToJsonStory(line, true, true, true);
                 stories.push(story);
             }
         }
@@ -369,10 +396,10 @@ CardTool.ExpImp = new function () {
         }
 
         if (stories.length > 0 && updateCurrentStory == true) {
-            CardTool.Core.restoreStoryFromStorage(CardTool.DomService.getStoryIdValueInput().val());
+            Caterpillar.Core.restoreStoryFromStorage(Caterpillar.DomService.getStoryIdValueInput().val());
         }
 
-        CardTool.Util.alertInfo(stories.length + " stories have been imported: " + importedStories.toString());
+        Caterpillar.Util.alertInfo(stories.length + " stories have been imported: " + importedStories.toString());
         _this.__getImportDialog__().dialog("close");
         _this.__getImportTextarea__().val("");
     };
@@ -385,7 +412,7 @@ CardTool.ExpImp = new function () {
 
         if (stories && stories.length > 0) {
             var firstStory = stories[0];
-            var currentStoryId = CardTool.DomService.getStoryIdValueInput().val().toUpperCase();
+            var currentStoryId = Caterpillar.DomService.getStoryIdValueInput().val().toUpperCase();
             if (stories.length == 1 && (!firstStory.id || firstStory.id.toUpperCase() == currentStoryId)) {
                 firstStory.id = currentStoryId;
                 storiesToImport = stories;
@@ -394,7 +421,7 @@ CardTool.ExpImp = new function () {
                 var storyMap = {};
                 for (var i = 0; i < stories.length; i++) {
                     var story = stories[i];
-                    if (CardTool.Util.isValidStoryId(story.id)) {
+                    if (Caterpillar.Util.isValidStoryId(story.id)) {
                         storiesToImport.push(story);
                         var storyId = story.id.toUpperCase();
                         if (storyId == currentStoryId) {
@@ -435,10 +462,10 @@ CardTool.ExpImp = new function () {
                 title:TITLE_REMOVE_TASKS
             });
 
-            CardTool.Util.executeWithConfirmations(confirmations, _this.__importStories__,
+            Caterpillar.Util.executeWithConfirmations(confirmations, _this.__importStories__,
                 [storiesToImport, taskAddRule, appendAfterIndex, updateCurrentStory])
         } else if (unknownStoriesCount > 0) {
-            CardTool.Util.alertInfo(unknownStoriesCount + " of " + unknownStoriesCount +
+            Caterpillar.Util.alertInfo(unknownStoriesCount + " of " + unknownStoriesCount +
                 " stories have empty or invalid story id. There is nothing to import.");
             _this.__getImportTextarea__().focus();
         }
@@ -461,7 +488,7 @@ CardTool.ExpImp = new function () {
 
             _this.__validateAndImportStories__(stories, importRule, appendAfterIndex);
         } else {
-            CardTool.Util.alertWarn("No stories/tasks to import.");
+            Caterpillar.Util.alertWarn("No stories/tasks to import.");
             _this.__getImportTextarea__().focus();
         }
     };
@@ -469,8 +496,8 @@ CardTool.ExpImp = new function () {
     this.openImportDialog = function () {
         var importDialog = _this.__getImportDialog__();
         if (!importDialog.dialog("isOpen")) {
-            if (CardTool.ContextMenu) {
-                CardTool.ContextMenu.closeTaskContextMenu();
+            if (Caterpillar.ContextMenu) {
+                Caterpillar.ContextMenu.closeTaskContextMenu();
             }
 
             importDialog.dialog("open");
@@ -481,8 +508,8 @@ CardTool.ExpImp = new function () {
     this.openExportDialog = function () {
         var exportDialog = _this.__getExportDialog__();
         if (!exportDialog.dialog("isOpen")) {
-            if (CardTool.ContextMenu) {
-                CardTool.ContextMenu.closeTaskContextMenu();
+            if (Caterpillar.ContextMenu) {
+                Caterpillar.ContextMenu.closeTaskContextMenu();
             }
 
             $("#export-range-current").attr("checked", true);

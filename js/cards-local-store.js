@@ -1,4 +1,31 @@
-CardTool.Storage = new function () {
+/*
+ Agile Caterpillar - v0.1
+ https://github.com/v-leo/agile-caterpillar
+
+ The MIT License (MIT)
+
+ Copyright (c) 2013 Vladimir Leontyev
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+
+Caterpillar.Storage = new function () {
     var _this = this;
 
     //Need for tests
@@ -8,41 +35,32 @@ CardTool.Storage = new function () {
 
     //var lastIssueId;
     var storageItemPrefix = "cardStorage";
+    var settingsKey = "Caterpillar.Settings";
 
-    var defaultCardTemplates = {"CS":[
-        {eta:0, description:"Acceptance tests"},
-        {eta:0, description:"Integration task"}
-    ]};
-
-    this.updateLocalStorage = function (story) {
+    this.saveOrUpdateStory = function (story) {
         if (window.localStorage && story && story.id) {
             window.localStorage[storageItemPrefix + story.id] = JSON.stringify(story);
         }
     };
 
-    this.getDefaultTasks = function (projectId) {
-        return defaultCardTemplates[projectId];
+    this.getStoredSettings = function () {
+        if (window.localStorage) {
+            var settings = window.localStorage[settingsKey];
+            if (settings) {
+                return JSON.parse(window.localStorage[settingsKey]);
+            }
+        }
     };
 
     this.getStoryFromStorage = function (storyId) {
         var story;
         if (window.localStorage && storyId && storyId.length > 0) {
             storyId = storyId.toUpperCase();
-            var issueId = CardTool.Util.getIssueIdFromStoryId(storyId);
-            if (issueId && CardTool.Util.isNotEmptyIssueId(issueId)) {
+            var issueId = Caterpillar.Util.getIssueIdFromStoryId(storyId);
+            if (issueId && Caterpillar.Util.isNotEmptyIssueId(issueId)) {
                 var cardsStr = window.localStorage[storageItemPrefix + storyId];
                 if (cardsStr) {
-                    var parsedStory = JSON.parse(cardsStr);
-                    story = parsedStory;
-                    if (parsedStory && parsedStory.length) {
-                        //convert old format
-                        story = convertOldFormat(parsedStory);
-                        window.localStorage[storageItemPrefix + storyId] = JSON.stringify(story);
-                    } else if (parsedStory && parsedStory.hasOwnProperty("peh")) {
-                        //convert peh fields to eta
-                        story = convertPehToEtaFormat(parsedStory);
-                        window.localStorage[storageItemPrefix + storyId] = JSON.stringify(story);
-                    }
+                    story = JSON.parse(cardsStr);
                 }
             }
         }
@@ -91,65 +109,18 @@ CardTool.Storage = new function () {
 
     this.updateLastStoryId = function (id) {
         if (id) {
-            var projectId = CardTool.Util.getProjectIdFromStoryId(id);
-            lastIssueId = CardTool.Util.getIssueIdFromStoryId(id);
+            var projectId = Caterpillar.Util.getProjectIdFromStoryId(id);
+            lastIssueId = Caterpillar.Util.getIssueIdFromStoryId(id);
 
             lastProjectId = projectId || lastProjectId;
-            lastIssueId = CardTool.Util.isNotEmptyIssueId(lastIssueId) ? lastIssueId : CardTool.Util.defaultIssueId;
+            lastIssueId = Caterpillar.Util.isNotEmptyIssueId(lastIssueId) ? lastIssueId : Caterpillar.Settings.defaultIssueId;
         } else {
-            lastIssueId = CardTool.Util.defaultIssueId;
+            lastIssueId = Caterpillar.Settings.defaultIssueId;
         }
 
-        lastStoryId = CardTool.Util.generateStoryId(lastProjectId, lastIssueId);
+        lastStoryId = Caterpillar.Util.generateStoryId(lastProjectId, lastIssueId);
         if (window.localStorage) {
-            window.localStorage.cardToolLastIssueId = lastStoryId;
+            window.localStorage.agileCaterpillarLastStoryId = lastStoryId;
         }
     };
-
-    function convertOldFormat(cards) {
-        var story = {};
-        var tasks = [];
-        for (var i = 0; i < cards.length; i++) {
-            var card = cards[i];
-            if (card["isStory"] == true) {
-                story.id = card.id;
-                //noinspection JSUnresolvedVariable
-                story.eta = CardTool.Util.parseEstimation(card.peh);
-                story.description = card.description;
-            } else {
-                var task = {};
-                //noinspection JSUnresolvedVariable
-                task.eta = CardTool.Util.parseEstimation(card.peh);
-                task.description = card.description;
-                tasks.push(task);
-            }
-        }
-        story.tasks = tasks;
-        return story;
-    }
-
-    function convertPehToEtaFormat(oldStory) {
-        //noinspection JSUnresolvedVariable
-        var story = {
-            id:oldStory.id,
-            eta:CardTool.Util.parseEstimation(oldStory.peh),
-            description:oldStory.description
-        };
-        var tasks = [];
-        var oldTasks = oldStory.tasks;
-        if (oldTasks) {
-            for (var i = 0; i < oldTasks.length; i++) {
-                var card = oldTasks[i];
-                //noinspection JSUnresolvedVariable
-                var task = {
-                    eta:CardTool.Util.parseEstimation(card.peh),
-                    description:card.description
-                };
-                tasks.push(task);
-            }
-        }
-        story.tasks = tasks;
-        return story;
-    }
-
 };

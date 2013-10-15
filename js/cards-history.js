@@ -1,9 +1,36 @@
+/*
+ Agile Caterpillar - v0.1
+ https://github.com/v-leo/agile-caterpillar
+
+ The MIT License (MIT)
+
+ Copyright (c) 2013 Vladimir Leontyev
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+
 $(document).ready(function () {
-    CardTool.History.loadStoryHistory();
-    CardTool.History.__initStoryHistoryAutocomplete__();
+    Caterpillar.History.loadStoryHistory();
+    Caterpillar.History.__initStoryHistoryAutocomplete__();
 });
 
-CardTool.History = new function() {
+Caterpillar.History = new function() {
     var _this = this;
 
     //Need for tests
@@ -14,7 +41,7 @@ CardTool.History = new function() {
     var storyHistory = [];
 
     this.__initStoryHistoryAutocomplete__ = function () {
-        var input = CardTool.DomService.getStoryIdInput();
+        var input = Caterpillar.DomService.getStoryIdInput();
 
         input.autocomplete({
             source:storyHistory,
@@ -39,22 +66,22 @@ CardTool.History = new function() {
 
     this.loadStoryHistory = function () {
         storyHistory = [];
-        var stories = CardTool.Storage.getAllStoriesFromStorage();
+        var stories = Caterpillar.Storage.getAllStoriesFromStorage();
         for (var key in stories) {
             var historyItem = {};
             //noinspection JSUnfilteredForInLoop
             var story = stories[key];
             historyItem.storyId = story.id;
-            historyItem.value = story.id + ": " + CardTool.Util.escapeHtmlTags(story.description);
+            historyItem.value = story.id + ": " + Caterpillar.Util.escapeHtmlTags(story.description);
             storyHistory.push(historyItem);
         }
     };
 
     this.addToStoryHistory = function (storyId, description) {
-        if (CardTool.Util.isValidStoryId(storyId)) {
+        if (Caterpillar.Util.isValidStoryId(storyId)) {
             var story = {};
             story.storyId = storyId;
-            story.value = storyId + ": " + CardTool.Util.escapeHtmlTags(description);
+            story.value = storyId + ": " + Caterpillar.Util.escapeHtmlTags(description);
             _this.deleteFromStoryHistory(storyId);
             storyHistory.unshift(story);
         }

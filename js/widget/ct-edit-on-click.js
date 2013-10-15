@@ -66,8 +66,8 @@
 
             this.element.bind('keydown.' + this.widgetName, function (event) {
                 if ((event.which === 13 || event.which === 108) && (!self.options.ctrlEnterToFinish || event.ctrlKey)) {
-                    self._updateValue(self.element.val());
                     self._stopEdit(false);
+                    self._updateValue(self.element.val());
                     return false;
                 } else if (event.which === 27) {
                     self._stopEdit(true);

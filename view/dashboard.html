@@ -32,13 +32,23 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
 
     <link href="../css/sunny/jquery-ui-1.9.1.custom.min.css" rel="stylesheet">
+
+    <link href="../css/ct-edit-on-click.css" rel="stylesheet">
+    <link href="../css/ct-printable.css" rel="stylesheet">
+
     <link href="../css/cards.css" rel="stylesheet">
 
     <script src="../lib/jQuery/jquery-1.8.3.min.js" type="text/javascript"></script>
     <script src="../lib/jQuery/ui/jquery-ui-1.9.1.custom.min.js" type="text/javascript"></script>
+
+    <script src="../js/widget/ct-printable.js" type="text/javascript"></script>
+    <script src="../js/widget/ct-edit-on-click.js" type="text/javascript"></script>
+
     <script type="text/javascript">
-        CardTool = {};
+        Caterpillar = {};
     </script>
+
+    <script src="../js/cards-settings.js" type="text/javascript"></script>
     <script src="../js/cards-util.js" type="text/javascript"></script>
     <script src="../js/cards-core.js" type="text/javascript"></script>
     <script src="../js/cards-dom-service.js" type="text/javascript"></script>
@@ -51,8 +61,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     <script src="../js/cards-history.js" type="text/javascript"></script>
     <script src="../js/cards-context-menu.js" type="text/javascript"></script>
     <script src="../js/cards.js" type="text/javascript"></script>
-
-
 </head>
 <body>
 
@@ -183,8 +191,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                             <input class="card-id-input editable-input" type="text" value="CS-0000"/>
                         </td>
                         <td class="card-eta">
-                            <span class="editable-view" title="Task estimation">0 PEH</span>
-                            <input class="card-eta-input editable-input" type="text" value="0" maxlength="2"/>
+                            <!--<span class="editable-view" title="Task estimation">0 PEH</span>-->
+                            <!--<input class="card-eta-input editable-input" type="text" value="0" maxlength="2"/>-->
+                            <input class="card-eta-input" type="text"/>
                         </td>
                     </tr>
                 </table>
@@ -193,10 +202,11 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                 <table class="content">
                     <tr>
                         <td class="content-td">
-                            <div class="content-div editable-view">
+                            <!--<div class="content-div editable-view">
                                 <p>Task description</p>
-                            </div>
-                            <textarea class="editable-input"></textarea>
+                            </div>-->
+                            <!--<textarea class="editable-input"></textarea>-->
+                            <textarea></textarea>
                         </td>
                     </tr>
                 </table>
@@ -280,6 +290,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     </div>
     <textarea class="import-text"></textarea>
 </div>
+
+<div id="dialog-settings" title="Settings" style="display: none">
+</div>
+
 
 <ul id="taskCardMenu" class="context-menu task-card-context-menu" style="display: none">
     <li>

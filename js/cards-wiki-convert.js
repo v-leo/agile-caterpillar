@@ -1,6 +1,30 @@
-var bagTrackerIssueUrl = "http://yt.ctrader.com/issue/";
+/*
+ Agile Caterpillar - v0.1
+ https://github.com/v-leo/agile-caterpillar
 
-CardTool.WikiConverter = new function () {
+ The MIT License (MIT)
+
+ Copyright (c) 2013 Vladimir Leontyev
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+Caterpillar.WikiConverter = new function () {
     var _this = this;
 
     //Need for tests
@@ -16,7 +40,7 @@ CardTool.WikiConverter = new function () {
 
     this.__replaceWikiElementsForHtml__ = function (wiki) {
         if (wiki) {
-            var result = CardTool.Util.escapeHtmlTags(wiki).replace(/'''''(.+?)'''''/g, "<strong><em>$1</em></strong>")
+            var result = Caterpillar.Util.escapeHtmlTags(wiki).replace(/'''''(.+?)'''''/g, "<strong><em>$1</em></strong>")
                 .replace(/(^|\s)\*(([^\s].*?[^\s])|([^\s]))\*(\s|$)/g, "$1<strong>$2</strong>$5")
                 .replace(/'''(.+?)'''/g, "<strong>$1</strong>")
                 .replace(/''(.+?)''/g, "<em>$1</em>")
@@ -25,8 +49,8 @@ CardTool.WikiConverter = new function () {
                 .replace(/\{\{(.+?)\}\}/g, "<code>$1</code>")
                 .replace(/\{color:(([a-zA-Z]+)|(#[a-fA-F0-9]{6}))\}(.*?)\{color\}/g, '<span style="color: $1; ">$4</span>');
 
-            if (bagTrackerIssueUrl && bagTrackerIssueUrl.length > 0) {
-                result = result.replace(/(^|\s+)([A-Z]+-[0-9]+)(\s+|$)/g, '$1<a class="issue-link" target="_blank" href="' + bagTrackerIssueUrl + '$2" title="Issue $2">$2</a>$3')
+            if (Caterpillar.Settings.bagTrackerIssueUrl && Caterpillar.Settings.bagTrackerIssueUrl.length > 0) {
+                result = result.replace(/(^|\s+)([A-Z]+-[0-9]+)(\s+|$)/g, '$1<a class="issue-link" target="_blank" href="' + Caterpillar.Settings.bagTrackerIssueUrl + '$2" title="Issue $2">$2</a>$3')
             }
 
             return result;

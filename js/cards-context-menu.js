@@ -1,9 +1,36 @@
+/*
+ Agile Caterpillar - v0.1
+ https://github.com/v-leo/agile-caterpillar
+
+ The MIT License (MIT)
+
+ Copyright (c) 2013 Vladimir Leontyev
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+
 $(document).ready(function () {
-    CardTool.ContextMenu.__initCardsContextMenu__();
-    CardTool.ContextMenu.__initHotKeys__();
+    Caterpillar.ContextMenu.__initCardsContextMenu__();
+    Caterpillar.ContextMenu.__initHotKeys__();
 });
 
-CardTool.ContextMenu = new function () {
+Caterpillar.ContextMenu = new function () {
     var _this = this;
 
     //Need for tests
@@ -30,15 +57,15 @@ CardTool.ContextMenu = new function () {
     };
 
     this.__initHotKeys__ = function () {
-        if (CardTool.HotKeys && CardTool.Selecting) {
-            CardTool.HotKeys.registerHotKey({
+        if (Caterpillar.HotKeys && Caterpillar.Selecting) {
+            Caterpillar.HotKeys.registerHotKey({
                 keyCode:93,
                 callback:function (event) {
-                    var card = CardTool.Selecting.getLastSelectedCard();
-                    if (!card.length && !CardTool.Selecting.isLastSelectedCard(CardTool.DomService.getStoryCard())) {
-                        var firstSelected = CardTool.Selecting.getSelectedCards().first();
+                    var card = Caterpillar.Selecting.getLastSelectedCard();
+                    if (!card.length && !Caterpillar.Selecting.isLastSelectedCard(Caterpillar.DomService.getStoryCard())) {
+                        var firstSelected = Caterpillar.Selecting.getSelectedCards().first();
                         if (firstSelected.length) {
-                            CardTool.Util.scrollToElement(firstSelected);
+                            Caterpillar.Util.scrollToElement(firstSelected);
                             card = firstSelected;
                         }
                     }
@@ -50,24 +77,24 @@ CardTool.ContextMenu = new function () {
                         _this.showTaskContextMenu(event, x, y);
                     }
                 },
-                condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+                condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
             });
-            CardTool.HotKeys.registerHotKey({
+            Caterpillar.HotKeys.registerHotKey({
                 keyCode:67,
                 shiftKey:true,
                 callback:function (event) {
-                    var lastSelectedCard = CardTool.Selecting.getLastSelectedCardOrStoryCard();
+                    var lastSelectedCard = Caterpillar.Selecting.getLastSelectedCardOrStoryCard();
                     if (lastSelectedCard.length > 0) {
                         _this.showCardColorContextMenu(event, lastSelectedCard);
                     } else {
-                        var firstSelected = CardTool.Selecting.getSelectedCards().first();
+                        var firstSelected = Caterpillar.Selecting.getSelectedCards().first();
                         if (firstSelected.length) {
-                            CardTool.Util.scrollToElement(firstSelected);
+                            Caterpillar.Util.scrollToElement(firstSelected);
                             _this.showCardColorContextMenu(event, firstSelected);
                         }
                     }
                 },
-                condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+                condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
             });
         }
     };
@@ -93,8 +120,8 @@ CardTool.ContextMenu = new function () {
             select:function (event, ui) {
                 function getCards() {
                     var cards = _this.__getSelectedCardFromMenu__(_this.getCardColorContextMenu());
-                    if (CardTool.Selecting && CardTool.Selecting.isSelectedCard(cards)) {
-                        cards = CardTool.Selecting.getSelectedCards();
+                    if (Caterpillar.Selecting && Caterpillar.Selecting.isSelectedCard(cards)) {
+                        cards = Caterpillar.Selecting.getSelectedCards();
                     }
                     return cards;
                 }
@@ -105,7 +132,7 @@ CardTool.ContextMenu = new function () {
                     event.preventDefault();
                     event.stopPropagation();
                     var color = getColorByItem(item);
-                    CardTool.Core.changeCardColor(getCards(), color, true);
+                    Caterpillar.Core.changeCardColor(getCards(), color, true);
                 }
             }
         });
@@ -138,8 +165,8 @@ CardTool.ContextMenu = new function () {
             select:function (event, ui) {
                 function getCards() {
                     var cards = _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu());
-                    if (CardTool.Selecting && CardTool.Selecting.isSelectedCard(cards)) {
-                        cards = CardTool.Selecting.getSelectedCards();
+                    if (Caterpillar.Selecting && Caterpillar.Selecting.isSelectedCard(cards)) {
+                        cards = Caterpillar.Selecting.getSelectedCards();
                     }
                     return cards;
                 }
@@ -151,33 +178,37 @@ CardTool.ContextMenu = new function () {
                     event.stopPropagation();
 
                     if (item.hasClass("menu-add-new-card")) {
-                          CardTool.Core.addNewCard(true);
+                          Caterpillar.Core.addNewCard(true);
                     } else if (item.hasClass("menu-add-new-left-card")) {
-                        CardTool.Core.addNewCard(true, _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()), true);
+                        Caterpillar.Core.addNewCard(true, _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()), true);
                     } else if (item.hasClass("menu-add-new-right-card")) {
-                        CardTool.Core.addNewCard(true, _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()), false);
+                        Caterpillar.Core.addNewCard(true, _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()), false);
                     } else if (item.hasClass("menu-copy-task-card")) {
                         var selectedCard = _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu());
-                        CardTool.Core.addNewCard(true, selectedCard, false, selectedCard);
+                        var newCard = Caterpillar.Core.addNewCard(false, selectedCard, false);
+                        Caterpillar.Core.updateCard(newCard, Caterpillar.Core.cardToJson(selectedCard));
+                        if (Caterpillar.Storage) {
+                            Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
+                        }
                     } else if (item.hasClass("menu-union-task-card")) {
-                        if (CardTool.Selecting) {
-                            CardTool.Core.unionCards(getCards());
+                        if (Caterpillar.Selecting) {
+                            Caterpillar.Core.unionCards(getCards());
                         }
                     } else if (item.hasClass("menu-split-task-card")) {
-                        CardTool.Core.splitCard(_this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()));
+                        Caterpillar.Core.splitCard(_this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()));
                     } else if (item.hasClass("menu-enable-task-card")) {
-                        CardTool.Core.enableCards(getCards());
+                        Caterpillar.Core.enableCards(getCards());
                     } else if (item.hasClass("menu-disable-task-card")) {
-                        CardTool.Core.disableCards(getCards());
+                        Caterpillar.Core.disableCards(getCards());
                     } else if (item.hasClass("menu-show-disabled-task-card")) {
-                        CardTool.Core.setShowDisabledCards(true);
+                        Caterpillar.Core.setShowDisabledCards(true);
                     } else if (item.hasClass("menu-hide-disabled-task-card")) {
-                        CardTool.Core.setShowDisabledCards(false);
+                        Caterpillar.Core.setShowDisabledCards(false);
                     } else if (item.hasClass("menu-remove-task-card")) {
-                        CardTool.Core.removeCards(getCards(), event.shiftKey);
+                        Caterpillar.Core.removeCards(getCards(), event.shiftKey);
                     } else if (item.hasClass("menu-color")) {
                         var color = getColorByItem(item);
-                        CardTool.Core.changeCardColor(getCards(), color, true);
+                        Caterpillar.Core.changeCardColor(getCards(), color, true);
                     }
                 }
             }
@@ -194,7 +225,7 @@ CardTool.ContextMenu = new function () {
             });
 
         window.oncontextmenu = function (event) {
-            if (event.pageX < 780) {
+            if (event.pageX < 780 && !Caterpillar.DomService.isTargetInputOrTextarea(event)) {
                 event.preventDefault();
                 event.stopPropagation();
                 return false;
@@ -204,7 +235,7 @@ CardTool.ContextMenu = new function () {
         };
 
         $("div.task-card").live("mouseup", function (event) {
-            if (event.which == 3 && !CardTool.DomService.isTargetInputOrTextarea(event)) {
+            if (event.which == 3 && !Caterpillar.DomService.isTargetInputOrTextarea(event)) {
                 _this.__setSelectedCardToMenu__(_this.getTaskCardContextMenu(), $(this).parent());
                 _this.showTaskContextMenu(event, event.pageX, event.pageY);
             }

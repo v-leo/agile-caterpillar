@@ -1,9 +1,36 @@
+/*
+ Agile Caterpillar - v0.1
+ https://github.com/v-leo/agile-caterpillar
+
+ The MIT License (MIT)
+
+ Copyright (c) 2013 Vladimir Leontyev
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+
 $(document).ready(function () {
-    CardTool.Selecting.initCardsSelecting();
-    CardTool.Selecting.__initHotKeys__();
+    Caterpillar.Selecting.initCardsSelecting();
+    Caterpillar.Selecting.__initHotKeys__();
 });
 
-CardTool.Selecting = new function () {
+Caterpillar.Selecting = new function () {
     var _this = this;
 
     //Need for tests
@@ -20,21 +47,21 @@ CardTool.Selecting = new function () {
 
 
     this.getLastSelectedCard = function () {
-        return CardTool.DomService.getTasksContainer().find(">li.last-selected");
+        return Caterpillar.DomService.getTasksContainer().find(">li.last-selected");
     };
 
     this.getPrevUnselectedCard = function (card) {
-        var next = CardTool.Core.getPrevCard(card);
+        var next = Caterpillar.Core.getPrevCard(card);
         while (next.length > 0 && _this.isSelectedCard(next)) {
-            next = CardTool.Core.getPrevCard(next);
+            next = Caterpillar.Core.getPrevCard(next);
         }
         return next;
     };
 
     this.getNextUnselectedCard = function (card) {
-        var next = CardTool.Core.getNextCard(card);
+        var next = Caterpillar.Core.getNextCard(card);
         while (next.length > 0 && _this.isSelectedCard(next)) {
-            next = CardTool.Core.getNextCard(next);
+            next = Caterpillar.Core.getNextCard(next);
         }
         return next;
     };
@@ -42,7 +69,7 @@ CardTool.Selecting = new function () {
     this.getLastSelectedCardOrStoryCard = function () {
         var lastSelectedCard = _this.getLastSelectedCard();
         if (lastSelectedCard.length == 0) {
-            var storyCard = CardTool.DomService.getStoryCard();
+            var storyCard = Caterpillar.DomService.getStoryCard();
             if (_this.isLastSelectedCard(storyCard)) {
                 lastSelectedCard = storyCard;
             }
@@ -51,7 +78,7 @@ CardTool.Selecting = new function () {
     };
 
     this.getSelectedCards = function () {
-        return CardTool.DomService.getTasksContainer().find(">li.ui-selected");
+        return Caterpillar.DomService.getTasksContainer().find(">li.ui-selected");
     };
 
     this.getLastSelectedOrSelectedCards = function () {
@@ -84,22 +111,24 @@ CardTool.Selecting = new function () {
     };
 
     this.__isAvailableForHotKeys__ = function (event) {
-        return !CardTool.DomService.isTargetInputOrTextarea(event) &&
-            !CardTool.DomService.isTargetContextMenu(event) &&
-            !CardTool.DomService.isOverlayVisible();
+        return !Caterpillar.DomService.isTargetInputOrTextarea(event) &&
+            !Caterpillar.DomService.isTargetContextMenu(event) &&
+            !Caterpillar.DomService.isOverlayVisible();
     };
 
 
     this.initCardsSelecting = function () {
         $("div.task-card").live("mousedown", function (event) {
-            _this.unSelectLastSelectedCard(CardTool.DomService.getStoryCard());
-            if (CardTool.ContextMenu) {
-                CardTool.ContextMenu.closeTaskContextMenu();
+            _this.unSelectLastSelectedCard(Caterpillar.DomService.getStoryCard());
+            if (Caterpillar.ContextMenu) {
+                Caterpillar.ContextMenu.closeTaskContextMenu();
             }
             var card = $(this).parent();
             var isSelected = _this.isSelectedCard(card);
             if (event.which == 1 || event.which == 3) {
-                event.preventDefault();
+                if (event.which == 3 && !Caterpillar.DomService.isTargetInputOrTextarea(event)) {
+                    event.preventDefault();
+                }
 
                 var lastSelectedCard = _this.getLastSelectedCard();
                 _this.unSelectLastSelectedCard(lastSelectedCard);
@@ -108,7 +137,7 @@ CardTool.Selecting = new function () {
                 var item;
                 var i;
                 if (event.which == 1 && event.shiftKey) {
-                    var items = CardTool.Core.getAllCards();
+                    var items = Caterpillar.Core.getAllCards();
                     var prevIndex = -1;
                     //noinspection JSCheckFunctionSignatures,JSValidateTypes
                     var nextIndex = items.index(card);
@@ -117,8 +146,8 @@ CardTool.Selecting = new function () {
                         //noinspection JSValidateTypes,JSCheckFunctionSignatures
                         prevIndex = items.index(item);
                         if (!event.ctrlKey && isSelected &&
-                            ((prevIndex < nextIndex && !_this.isSelectedCard(CardTool.Core.getPrevCard(item)) && _this.isAllSelectedBetween(prevIndex, nextIndex - 1) == true) ||
-                                (prevIndex > nextIndex && !_this.isSelectedCard(CardTool.Core.getNextCard(item)) && _this.isAllSelectedBetween(nextIndex + 1, prevIndex) == true))) {
+                            ((prevIndex < nextIndex && !_this.isSelectedCard(Caterpillar.Core.getPrevCard(item)) && _this.isAllSelectedBetween(prevIndex, nextIndex - 1) == true) ||
+                                (prevIndex > nextIndex && !_this.isSelectedCard(Caterpillar.Core.getNextCard(item)) && _this.isAllSelectedBetween(nextIndex + 1, prevIndex) == true))) {
                             unselect = true;
                         }
                     } else {
@@ -193,7 +222,7 @@ CardTool.Selecting = new function () {
             }
         });
 
-        CardTool.DomService.getCardUiDiv(CardTool.DomService.getStoryCard()).mousedown(function (event) {
+        Caterpillar.DomService.getCardUiDiv(Caterpillar.DomService.getStoryCard()).mousedown(function (event) {
             if ((event.which == 1 && !event.ctrlKey && !event.shiftKey) || event.which == 3) {
                 _this.unSelectCards(_this.getSelectedCards());
                 _this.setLastSelectedCard($(this).parent());
@@ -227,8 +256,8 @@ CardTool.Selecting = new function () {
                         action = SELECT_ACTION.SELECT;
                         if (lastSelectedCard) {
                             item = lastSelectedCard;
-                            var isPrevCardSelected = _this.isSelectedCard(CardTool.Core.getPrevCard(item));
-                            var isNextCardSelected = _this.isSelectedCard(CardTool.Core.getNextCard(item));
+                            var isPrevCardSelected = _this.isSelectedCard(Caterpillar.Core.getPrevCard(item));
+                            var isNextCardSelected = _this.isSelectedCard(Caterpillar.Core.getNextCard(item));
 
                             if (isPrevCardSelected == true && isNextCardSelected == true) {
                                 if (!ctrlKey) {
@@ -252,51 +281,51 @@ CardTool.Selecting = new function () {
 
                     var nextSelectedCard = _this.getNextCardToSelect(lastSelectedCard, nextCardStep, action, event.shiftKey);
 
-                    _this.unSelectLastSelectedCard(CardTool.DomService.getStoryCard());
+                    _this.unSelectLastSelectedCard(Caterpillar.DomService.getStoryCard());
                     _this.setLastSelectedCard(nextSelectedCard);
 
                     if ((!ctrlKey || (event.shiftKey && action == SELECT_ACTION.UNSELECT))
-                        && nextSelectedCard && !CardTool.DomService.isStoryCard(nextSelectedCard)) {
+                        && nextSelectedCard && !Caterpillar.DomService.isStoryCard(nextSelectedCard)) {
                         _this.selectCards(nextSelectedCard);
                     }
 
                     return false;
                 } else if (event.which == 36) {
-                    _this.unSelectLastSelectedCard(CardTool.DomService.getStoryCard());
+                    _this.unSelectLastSelectedCard(Caterpillar.DomService.getStoryCard());
                     lastSelectedCard = _this.getLastSelectedCard();
                     if (lastSelectedCard && event.shiftKey) {
                         item = lastSelectedCard;
-                        if (!CardTool.Core.isFirstCard(item)) {
+                        if (!Caterpillar.Core.isFirstCard(item)) {
                             if (!ctrlKey) {
                                 _this.unSelectCards(item.nextAll("li.card-item"));
                             }
-                            _this.selectCards(CardTool.Core.getPrevAllCards(item));
+                            _this.selectCards(Caterpillar.Core.getPrevAllCards(item));
                             _this.selectCards(lastSelectedCard);
                         }
                     }
                     //noinspection JSCheckFunctionSignatures
-                    _this.setLastSelectedCard(CardTool.Core.getFirstCard());
+                    _this.setLastSelectedCard(Caterpillar.Core.getFirstCard());
                     return false;
                 } else if (event.which == 35) {
-                    _this.unSelectLastSelectedCard(CardTool.DomService.getStoryCard());
+                    _this.unSelectLastSelectedCard(Caterpillar.DomService.getStoryCard());
                     lastSelectedCard = _this.getLastSelectedCard();
                     if (lastSelectedCard && event.shiftKey) {
                         item = lastSelectedCard;
-                        if (!CardTool.Core.isLastCard(item)) {
+                        if (!Caterpillar.Core.isLastCard(item)) {
                             if (!ctrlKey) {
                                 _this.unSelectCards(item.prevAll("li.card-item"));
                             }
-                            _this.selectCards(CardTool.Core.getNextAllCards(item));
+                            _this.selectCards(Caterpillar.Core.getNextAllCards(item));
                             _this.selectCards(lastSelectedCard);
                         }
                     }
                     //noinspection JSCheckFunctionSignatures
-                    _this.setLastSelectedCard(CardTool.Core.getLastCard());
+                    _this.setLastSelectedCard(Caterpillar.Core.getLastCard());
                     return false;
                 } else if (ctrlKey && event.which == 65) {
-                    _this.unSelectLastSelectedCard(CardTool.DomService.getStoryCard());
+                    _this.unSelectLastSelectedCard(Caterpillar.DomService.getStoryCard());
                     //noinspection JSCheckFunctionSignatures
-                    _this.selectCards(CardTool.Core.getAllCards());
+                    _this.selectCards(Caterpillar.Core.getAllCards());
                     return false;
                 } else if (event.which == 32) {
                     _this.getLastSelectedCard().toggleClass("ui-selected");
@@ -307,7 +336,7 @@ CardTool.Selecting = new function () {
                         _this.unSelectCards(selectedCards);
                     } else {
                         _this.unSelectLastSelectedCard(_this.getLastSelectedCard());
-                        _this.unSelectLastSelectedCard(CardTool.DomService.getStoryCard());
+                        _this.unSelectLastSelectedCard(Caterpillar.DomService.getStoryCard());
                     }
                     return false;
                 }
@@ -316,107 +345,107 @@ CardTool.Selecting = new function () {
         });
 
         htmlTag.mousedown(function (event) {
-            if (event.which == 1 && !event.ctrlKey && event.pageX > CardTool.DomService.getStoryPage().printable("pageWidth")) {
+            if (event.which == 1 && !event.ctrlKey && event.pageX > Caterpillar.DomService.getStoryPage().ctPrintable("pageWidth")) {
                 _this.unSelectCards(_this.getSelectedCards());
                 _this.unSelectLastSelectedCard(_this.getLastSelectedCard());
-                _this.unSelectLastSelectedCard(CardTool.DomService.getStoryCard());
+                _this.unSelectLastSelectedCard(Caterpillar.DomService.getStoryCard());
             }
         });
     };
 
     this.__initHotKeys__ = function () {
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:46,
             shiftKey:true,
             callback:function(){
-                CardTool.Core.removeCards(_this.getLastSelectedOrSelectedCards(), true);
+                Caterpillar.Core.removeCards(_this.getLastSelectedOrSelectedCards(), true);
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:46,
             callback:function(){
-                CardTool.Core.removeCards(_this.getLastSelectedOrSelectedCards());
+                Caterpillar.Core.removeCards(_this.getLastSelectedOrSelectedCards());
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
 
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:83,
             shiftKey:true,
             callback:function(){
-                CardTool.Core.splitCard(_this.getLastSelectedCard());
+                Caterpillar.Core.splitCard(_this.getLastSelectedCard());
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:85,
             shiftKey:true,
             callback:function(){
-                CardTool.Core.unionCards(_this.getLastSelectedOrSelectedCards());
+                Caterpillar.Core.unionCards(_this.getLastSelectedOrSelectedCards());
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:[107, 187],
             callback:function(){
-                CardTool.Core.enableCards(_this.getLastSelectedOrSelectedCards());
+                Caterpillar.Core.enableCards(_this.getLastSelectedOrSelectedCards());
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:[109, 189],
             callback:function(){
-                CardTool.Core.disableCards(_this.getLastSelectedOrSelectedCards());
+                Caterpillar.Core.disableCards(_this.getLastSelectedOrSelectedCards());
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:[48, 96],
             callback:function(){
-                CardTool.Selecting.setLastSelectedCard(CardTool.DomService.getStoryCard());
+                Caterpillar.Selecting.setLastSelectedCard(Caterpillar.DomService.getStoryCard());
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:[49, 50, 51, 52, 53, 54, 55, 56, 57, 97, 98, 99, 100, 101, 102, 103, 104, 105],
             callback:function(event){
                 var index = event.which - (event.which > 95 ? 96 : 48);
-                var cards = CardTool.DomService.getAllCardsNoCondition();
+                var cards = Caterpillar.DomService.getAllCardsNoCondition();
                 if (cards.length >= index) {
                     //noinspection JSDuplicatedDeclaration
                     var card = $(cards[index - 1]);
-                    if (!CardTool.DomService.isDisabledCard(card) || CardTool.DomService.isShowDisabledCards()) {
+                    if (!Caterpillar.DomService.isDisabledCard(card) || Caterpillar.DomService.isShowDisabledCards()) {
                         _this.setLastSelectedCard(card);
                     }
                 }
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:72,
             shiftKey:true,
             callback:function(){
-                CardTool.DomService.getCardEtaSpan(CardTool.Selecting.getLastSelectedCardOrStoryCard()).trigger("click");
+                Caterpillar.DomService.getCardEtaSpan(Caterpillar.Selecting.getLastSelectedCardOrStoryCard()).trigger("click");
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlay
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
 
-        CardTool.HotKeys.registerHotKey({
+        Caterpillar.HotKeys.registerHotKey({
             keyCode:[13,108],
             callback:function(){
-                startEditCardDescription(CardTool.Selecting.getLastSelectedCardOrStoryCard());
+                startEditCardDescription(Caterpillar.Selecting.getLastSelectedCardOrStoryCard());
             },
-            condition:CardTool.HotKeys.notInputNotTextareaNotOverlayNotContextMenu
+            condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlayNotContextMenu
         });
     };
 
     this.isAllSelectedBetween = function (fromIndex, toIndex) {
-        var cards = CardTool.DomService.getAllCardsNoCondition();
-        var showHidden = CardTool.DomService.isShowDisabledCards();
+        var cards = Caterpillar.DomService.getAllCardsNoCondition();
+        var showHidden = Caterpillar.DomService.isShowDisabledCards();
         for (var i = fromIndex; i < toIndex; i++) {
             var card = $(cards[i]);
-            if ((showHidden || !CardTool.DomService.isDisabledCard(card)) && !_this.isSelectedCard(card)) {
+            if ((showHidden || !Caterpillar.DomService.isDisabledCard(card)) && !_this.isSelectedCard(card)) {
                 return false;
             }
         }
@@ -425,10 +454,10 @@ CardTool.Selecting = new function () {
 
     this.setLastSelectedCard = function (nextSelectedCard) {
         if (nextSelectedCard && nextSelectedCard.length > 0) {
-            _this.unSelectLastSelectedCard(CardTool.DomService.getStoryCard());
+            _this.unSelectLastSelectedCard(Caterpillar.DomService.getStoryCard());
             _this.unSelectLastSelectedCard(_this.getLastSelectedCard());
             nextSelectedCard.addClass("last-selected");
-            CardTool.Util.scrollToElement(nextSelectedCard);
+            Caterpillar.Util.scrollToElement(nextSelectedCard);
         }
     };
 
@@ -464,11 +493,11 @@ CardTool.Selecting = new function () {
             _this.updateCardSelection(lastSelectedCard, selectAction);
             var lastSelectedTask = lastSelectedCard;
             if (step > 0) {
-                if (!shiftKey || !CardTool.Core.isLastCard(lastSelectedTask)) {
-                    lastSelectedTask = CardTool.Core.getNextCard(lastSelectedTask);
+                if (!shiftKey || !Caterpillar.Core.isLastCard(lastSelectedTask)) {
+                    lastSelectedTask = Caterpillar.Core.getNextCard(lastSelectedTask);
                     _this.updateCardSelection(lastSelectedTask, selectAction);
-                    if (step > 1 && !CardTool.Core.isLastCard(lastSelectedTask)) {
-                        lastSelectedTask = CardTool.Core.getNextCard(lastSelectedTask);
+                    if (step > 1 && !Caterpillar.Core.isLastCard(lastSelectedTask)) {
+                        lastSelectedTask = Caterpillar.Core.getNextCard(lastSelectedTask);
                         _this.updateCardSelection(lastSelectedTask, selectAction);
                     }
                     nextSelectedCard = lastSelectedTask;
@@ -476,21 +505,21 @@ CardTool.Selecting = new function () {
                     nextSelectedCard = lastSelectedCard;
                 }
             } else {
-                if (!shiftKey || !CardTool.Core.isFirstCard(lastSelectedTask)) {
-                    lastSelectedTask = CardTool.Core.getPrevCard(lastSelectedTask);
+                if (!shiftKey || !Caterpillar.Core.isFirstCard(lastSelectedTask)) {
+                    lastSelectedTask = Caterpillar.Core.getPrevCard(lastSelectedTask);
                     _this.updateCardSelection(lastSelectedTask, selectAction);
                     if (step < -1) {
-                        if (!CardTool.Core.isFirstCard(lastSelectedTask)) {
-                            lastSelectedTask = CardTool.Core.getPrevCard(lastSelectedTask);
+                        if (!Caterpillar.Core.isFirstCard(lastSelectedTask)) {
+                            lastSelectedTask = Caterpillar.Core.getPrevCard(lastSelectedTask);
                             _this.updateCardSelection(lastSelectedTask, selectAction);
                             nextSelectedCard = lastSelectedTask;
                         } else if (!shiftKey) {
-                            nextSelectedCard = CardTool.DomService.getStoryCard();
+                            nextSelectedCard = Caterpillar.DomService.getStoryCard();
                         } else {
                             nextSelectedCard = lastSelectedTask;
                         }
                     } else if (lastSelectedTask.length == 0 && !shiftKey) {
-                        nextSelectedCard = CardTool.DomService.getStoryCard();
+                        nextSelectedCard = Caterpillar.DomService.getStoryCard();
                     } else {
                         nextSelectedCard = lastSelectedTask;
                     }
@@ -498,11 +527,11 @@ CardTool.Selecting = new function () {
                     nextSelectedCard = lastSelectedCard;
                 }
             }
-        } else if (_this.isLastSelectedCard(CardTool.DomService.getStoryCard())) {
+        } else if (_this.isLastSelectedCard(Caterpillar.DomService.getStoryCard())) {
             if (shiftKey) {
-                nextSelectedCard = CardTool.DomService.getStoryCard();
+                nextSelectedCard = Caterpillar.DomService.getStoryCard();
             } else if (step > 1) {
-                nextSelectedCard = CardTool.Core.getNextCard(CardTool.Core.getFirstCard());
+                nextSelectedCard = Caterpillar.Core.getNextCard(Caterpillar.Core.getFirstCard());
             }
         } else if (shiftKey) {
             nextSelectedCard = _this.getSelectedCards().first();
@@ -510,9 +539,9 @@ CardTool.Selecting = new function () {
 
         if (nextSelectedCard.length == 0) {
             if (step > 0) {
-                nextSelectedCard = CardTool.Core.getFirstCard();
+                nextSelectedCard = Caterpillar.Core.getFirstCard();
             } else {
-                nextSelectedCard = CardTool.Core.getLastCard();
+                nextSelectedCard = Caterpillar.Core.getLastCard();
             }
         }
 
@@ -546,5 +575,5 @@ CardTool.Selecting = new function () {
 };
 
 function startEditCardDescriptionInternal() {
-    startEditCardDescription(CardTool.DomService.getCardDescriptionTextarea(CardTool.Selecting.getLastSelectedCardOrStoryCard()));
+    startEditCardDescription(Caterpillar.DomService.getCardDescriptionTextarea(Caterpillar.Selecting.getLastSelectedCardOrStoryCard()));
 }

@@ -1,4 +1,31 @@
-CardTool.Util = new function () {
+/*
+ Agile Caterpillar - v0.1
+ https://github.com/v-leo/agile-caterpillar
+
+ The MIT License (MIT)
+
+ Copyright (c) 2013 Vladimir Leontyev
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal in
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ the Software, and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+
+Caterpillar.Util = new function () {
     var _this = this;
 
     //Need for tests
@@ -6,14 +33,8 @@ CardTool.Util = new function () {
         _this = t;
     };
 
-    this.defaultProjectId = "CT";
-    this.defaultIssueId = "0000";
     this.DASH = "-";
-    this.defaultStoryId = this.defaultProjectId + this.DASH + this.defaultIssueId;
-
-    this.ETA_MEASURE = "PEH";
-    this.SPIKE = "Spike";
-
+    this.defaultStoryId = Caterpillar.Settings.defaultProjectId + this.DASH + Caterpillar.Settings.defaultIssueId;
 
     this.isNotEmptyIssueId = function (issueId) {
         return _this.isNumber(issueId) && !/^0*$/.test(issueId)
@@ -73,9 +94,9 @@ CardTool.Util = new function () {
             } else {
                 var firstChar = val.substr(0, 1);
                 if (_this.isNumber(firstChar)) {
-                    return _this.generateStoryId(_this.defaultProjectId, _this.checkAndFixNumberValue(val));
+                    return _this.generateStoryId(Caterpillar.Settings.defaultProjectId, _this.checkAndFixNumberValue(val));
                 } else {
-                    return _this.generateStoryId(_this.checkAndFixProjectValue(val), _this.defaultIssueId);
+                    return _this.generateStoryId(_this.checkAndFixProjectValue(val), Caterpillar.Settings.defaultIssueId);
                 }
             }
         } else {
@@ -98,9 +119,9 @@ CardTool.Util = new function () {
     this.estimationToString = function (eta, spikeExist) {
         var res = _this.parseEstimation(eta);
         if (res == null) {
-            return _this.SPIKE;
+            return Caterpillar.Settings.spike;
         } else {
-            return "" + res + (spikeExist == true ? "+ " : " ") + _this.ETA_MEASURE;
+            return "" + res + (spikeExist == true ? "+ " : " ") + Caterpillar.Settings.etaMeasure;
         }
     };
 
@@ -129,8 +150,8 @@ CardTool.Util = new function () {
     };
 
     this.alertInfo = function (message, title, callback, callbackArgs) {
-        if (CardTool.Message) {
-            CardTool.Message.alertInfo(message, title, callback, callbackArgs);
+        if (Caterpillar.Message) {
+            Caterpillar.Message.alertInfo(message, title, callback, callbackArgs);
         } else {
             alert(message);
             _this.__callFunction__(callback, callbackArgs);
@@ -138,8 +159,8 @@ CardTool.Util = new function () {
     };
 
     this.alertWarn = function (message, title, callback, callbackArgs) {
-        if (CardTool.Message) {
-            CardTool.Message.alertWarn(message, title, callback, callbackArgs);
+        if (Caterpillar.Message) {
+            Caterpillar.Message.alertWarn(message, title, callback, callbackArgs);
         } else {
             alert(message);
             _this.__callFunction__(callback, callbackArgs);
@@ -147,8 +168,8 @@ CardTool.Util = new function () {
     };
 
     this.alertError = function (message, title, callback, callbackArgs) {
-        if (CardTool.Message) {
-            CardTool.Message.alertError(message, title, callback, callbackArgs);
+        if (Caterpillar.Message) {
+            Caterpillar.Message.alertError(message, title, callback, callbackArgs);
         } else {
             alert(message);
             _this.__callFunction__(callback, callbackArgs);
@@ -156,8 +177,8 @@ CardTool.Util = new function () {
     };
 
     this.confirm = function (message, title, callback, callbackArgs) {
-        if (CardTool.Message) {
-            CardTool.Message.confirm(message, title, callback, callbackArgs);
+        if (Caterpillar.Message) {
+            Caterpillar.Message.confirm(message, title, callback, callbackArgs);
         } else {
             if (confirm(message)) {
                 _this.__callFunction__(callback, callbackArgs);
@@ -181,7 +202,7 @@ CardTool.Util = new function () {
     };
 
     this.__parseAndUpdateEstimation__ = function (str, card) {
-        var etaBasePattern = new RegExp("(?:^|\\s+)(?:\\W*)(\\d+)(?:\\s*(?:" + _this.ETA_MEASURE + "))(?:\\W*)(?:\\s+|$)", "i");
+        var etaBasePattern = new RegExp("(?:^|\\s+)(?:\\W*)(\\d+)(?:\\s*(?:" + Caterpillar.Settings.etaMeasure + "))(?:\\W*)(?:\\s+|$)", "i");
         if (etaBasePattern.test(str)) {
             var lines = str.split(/\n/g);
             for (var i = 0; i < lines.length; i++) {
@@ -318,10 +339,11 @@ CardTool.Util = new function () {
     };
 
     this.descriptionToHtml = function (description) {
-        if (CardTool.WikiConverter) {
-            return CardTool.WikiConverter.wikiToHtml(description);
-        } else {
+        if (!Caterpillar.WikiConverter || !description) {
+            description = description || " ";
             return "<p>" + _this.escapeHtmlTags(description).replace(/\n/g, "<br/>") + "</p>";
+        } else {
+            return Caterpillar.WikiConverter.wikiToHtml(description);
         }
     };
 
