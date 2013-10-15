@@ -1,0 +1,461 @@
+<!--
+Agile Caterpillar - v0.1
+https://github.com/v-leo/agile-caterpillar
+
+The MIT License (MIT)
+
+Copyright (c) 2013 Vladimir Leontyev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Agile Caterpillar dashboard</title>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type">
+	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+
+    <link href="../css/sunny/jquery-ui-1.9.1.custom.min.css" rel="stylesheet">
+    <link href="../css/cards.css" rel="stylesheet">
+
+    <script src="../lib/jQuery/jquery-1.8.3.min.js" type="text/javascript"></script>
+    <script src="../lib/jQuery/ui/jquery-ui-1.9.1.custom.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        CardTool = {};
+    </script>
+    <script src="../js/cards-util.js" type="text/javascript"></script>
+    <script src="../js/cards-core.js" type="text/javascript"></script>
+    <script src="../js/cards-dom-service.js" type="text/javascript"></script>
+    <script src="../js/cards-local-store.js" type="text/javascript"></script>
+    <script src="../js/cards-wiki-convert.js" type="text/javascript"></script>
+    <script src="../js/cards-message.js" type="text/javascript"></script>
+    <script src="../js/cards-export-import.js" type="text/javascript"></script>
+    <script src="../js/cards-selecting.js" type="text/javascript"></script>
+    <script src="../js/cards-hotkey.js" type="text/javascript"></script>
+    <script src="../js/cards-history.js" type="text/javascript"></script>
+    <script src="../js/cards-context-menu.js" type="text/javascript"></script>
+    <script src="../js/cards.js" type="text/javascript"></script>
+
+
+</head>
+<body>
+
+<div id="story-page" class="cards-page">
+    <div id="story-item" class="story-item show-enabled-eta">
+        <input id="story-values" type="hidden" class="card-values" value="CS-0000" description="" estimation="0"/>
+        <input id="story-id-value-input" type="hidden" class="card-id-value" value="CS-0000"/>
+        <input id="story-eta-value-input" type="hidden" class="card-eta-value" value="0"/>
+        <input id="story-descr-value-input" type="hidden" class="card-description-value"/>
+
+        <div id="story-card" class="card story-card ui-widget">
+            <div class="card-header">
+                <div class="card-label">
+                    <div class="card-label-el card-label-id"></div>
+                    <div class="card-label-el card-label-eta"></div>
+                    <div class="card-label-el card-label-desc-line1"></div>
+                    <div class="card-label-el card-label-desc-line2"></div>
+                    <div class="card-label-el card-label-desc-line3"></div>
+                </div>
+                <div class="card-label">
+                    <div class="card-label-el card-label-id"></div>
+                    <div class="card-label-el card-label-eta"></div>
+                    <div class="card-label-el card-label-desc-line1"></div>
+                    <div class="card-label-el card-label-desc-line2"></div>
+                    <div class="card-label-el card-label-desc-line3"></div>
+                </div>
+                <div class="card-label">
+                    <div class="card-label-el card-label-id"></div>
+                    <div class="card-label-el card-label-eta"></div>
+                    <div class="card-label-el card-label-desc-line1"></div>
+                    <div class="card-label-el card-label-desc-line2"></div>
+                    <div class="card-label-el card-label-desc-line3"></div>
+                </div>
+                <div class="card-label">
+                    <div class="card-label-el card-label-id"></div>
+                    <div class="card-label-el card-label-eta"></div>
+                    <div class="card-label-el card-label-desc-line1"></div>
+                    <div class="card-label-el card-label-desc-line2"></div>
+                    <div class="card-label-el card-label-desc-line3"></div>
+                </div>
+                <div class="card-label">
+                    <div class="card-label-el card-label-id"></div>
+                    <div class="card-label-el card-label-eta"></div>
+                    <div class="card-label-el card-label-desc-line1"></div>
+                    <div class="card-label-el card-label-desc-line2"></div>
+                    <div class="card-label-el card-label-desc-line3"></div>
+                </div>
+                <table>
+                    <tr>
+                        <td class="card-id">
+                            <span class="editable-view" title="Create/Open story (Shift+O)">CS-0000</span>
+                            <input id="story-id-input" class="card-id-input story-id-input editable-input" type="text" value="CS-0000"/>
+                        </td>
+                        <td class="card-eta">
+                            <span id="story-eta-span" class="story-eta editable-view" title="Story estimation">0 PEH</span>
+                            <span id="enabled-eta-span" class="enabled-eta editable-view" title="Story estimation">0 PEH</span>
+                            <span id="total-eta-span" class="total-eta editable-view" title="Story estimation">0 PEH</span>
+                            <input id="story-eta-input" class="card-eta-input editable-input" type="text" value="0" maxlength="3"/>
+                        </td>
+                    </tr>
+                    <tr id="story-info-tr" style="display: none;">
+                        <td class="cards-info-td" colspan="3">
+                            <div id="show-total-info" class="cards-info total-info" title="Show total estimation">
+                                <span>Total: </span>
+                                <span id="total-counter-span"></span>
+                            </div>
+                            <div id="show-enabled-info" class="cards-info enabled-info" title="Show enabled estimation">
+                                <span>Enabled: </span>
+                                <span id="enabled-counter-span"></span>
+                            </div>
+                            <div id="show-disabled-switcher" class="cards-info disabled-info"
+                                 title="Show disabled cards">
+                                <span id="hide-disabled-span" title="Hide disabled cards (Shift+[-])">Hide disabled: </span>
+                                <span id="show-disabled-span" title="Show disabled cards (Shift+[+])">Show disabled: </span>
+                                <span id="disabled-counter-span"></span>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card-content">
+                <table class="content">
+                    <tr>
+                        <td class="content-td">
+                            <div class="content-div editable-view">Press Shift+O to open or create story</div>
+                            <textarea class="editable-input"></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card-toolbar-container">
+                <span class="ui-widget-header ui-corner-all card-toolbar">
+                    <span id="story-toolbar-button-set" class="card-button-set">
+                        <button class="card-color" title="Change card color (Shift+C)">Color</button>
+                        <button class="remove-story" title="Remove current story">Remove</button>
+                        <button class="add-new add-new-right" title="Add new card">New</button>
+                    </span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <ul id="tasks-container">
+    </ul>
+</div>
+<div id="hidden-ending-cards" class="hidden-cards-div" title="There are hidden disabled cards (Shift+[+] to show)"></div>
+
+<ul style="display: none;">
+    <li id="card-template" class="card-item">
+        <input type="hidden" class="card-values" value="" estimation="0" description=""/>
+        <input type="hidden" class="card-eta-value" value="0"/>
+        <input type="hidden" class="card-description-value"/>
+
+        <div class="card task-card ui-widget">
+            <div class="hidden-cards-div" title="There are hidden disabled cards (Shift+[+] to show)"></div>
+            <div class="card-header">
+                <div class="card-label">
+                    <div class="card-label-el card-label-id"></div>
+                    <div class="card-label-el card-label-eta"></div>
+                    <div class="card-label-el card-label-desc-line1"></div>
+                    <div class="card-label-el card-label-desc-line2"></div>
+                    <div class="card-label-el card-label-desc-line3"></div>
+                </div>
+                <table>
+                    <tr>
+                        <td class="card-id">
+                            <span class="editable-view" title="Story id [task index]">CS-0000</span>
+                            <input class="card-id-input editable-input" type="text" value="CS-0000"/>
+                        </td>
+                        <td class="card-eta">
+                            <span class="editable-view" title="Task estimation">0 PEH</span>
+                            <input class="card-eta-input editable-input" type="text" value="0" maxlength="2"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card-content">
+                <table class="content">
+                    <tr>
+                        <td class="content-td">
+                            <div class="content-div editable-view">
+                                <p>Task description</p>
+                            </div>
+                            <textarea class="editable-input"></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="card-toolbar-container">
+    <span class="ui-widget-header ui-corner-all card-toolbar">
+        <span class="card-button-set">
+            <button class="add-new add-new-left" title="Add new card">New</button>
+            <button class="card-color" title="Change card color (Shift+C)">Color</button>
+            <button class="disable-task-card" title="Disable task card ([-])">Disable</button>
+            <button class="enable-task-card" title="Enable task card ([=] or [+])">Enable</button>
+            <button class="remove-task-card" title="Remove current task (Del or Shift+Del)">Remove</button>
+            <button class="add-new add-new-right" title="Add new card">New</button>
+        </span>
+    </span>
+            </div>
+        </div>
+    </li>
+</ul>
+
+<div id="confirm-dialog" title="Confirm" style="display: none">
+    <p>
+        <span class="ui-icon ui-icon-help" style="float: left; margin: 0 7px 20px 0;"></span>
+        <span class="message"></span>
+    </p>
+</div>
+
+<div id="message-dialog" title="Message" style="display: none">
+    <p>
+        <span class="ui-icon" style="float: left; margin: 0 7px 20px 0; display: none"></span>
+        <span class="message"></span>
+    </p>
+</div>
+
+<div id="dialog-export" title="Export story" style="display: none">
+    <div class="export-toolbar">
+        <div class="export-format-button-set">
+            <input id="export-format-wiki" title="Wiki format" type="radio" name="exportFormat" value="wiki">
+            <label for="export-format-wiki">Wiki</label>
+            <input id="export-format-text" title="Text format" type="radio" name="exportFormat" checked value="text">
+            <label for="export-format-text">Text</label>
+            <input id="export-format-json" title="JSON format" type="radio" name="exportFormat" value="json">
+            <label for="export-format-json">JSON</label>
+        </div>
+        <div class="export-range-button-set">
+            <input id="export-range-current" type="radio" name="exportRange" checked value="current">
+            <label for="export-range-current">Current story</label>
+            <input id="export-range-all" type="radio" name="exportRange" value="all">
+            <label for="export-range-all">All stored</label>
+        </div>
+
+    </div>
+    <textarea class="export-text"></textarea>
+</div>
+
+<div id="dialog-import" title="Import tasks/stories" style="display: none">
+    <div class="import-toolbar">
+        <div class="import-format-button-set">
+            <input id="import-format-wiki" title="Wiki/text format" type="radio" name="importFormat" value="wiki"
+                   checked>
+            <label for="import-format-wiki">Wiki/Text</label>
+            <input id="import-format-json" title="Text format" type="radio" name="importFormat" value="json">
+            <label for="import-format-json">JSON</label>
+        </div>
+
+        <input id="append-after-input" title="Task's index in the story (starts with 1)" type="text"/>
+
+        <div class="import-rule-button-set">
+            <input id="import-rule-replace" title="Replace existing tasks to the new" type="radio" name="importRule"
+                   value="replace">
+            <label for="import-rule-replace">Replace all</label>
+            <input id="import-rule-prepend" title="Add tasks at the beginning of the story" type="radio"
+                   name="importRule" value="prepend">
+            <label for="import-rule-prepend">Prepend</label>
+            <input id="import-rule-append" title="Add tasks at the end of the story" type="radio" name="importRule"
+                   value="append" checked>
+            <label for="import-rule-append" title="Add tasks after the particular task">Append</label>
+            <input id="import-rule-append-after" type="radio" name="importRule" value="append-after">
+            <label for="import-rule-append-after">Append after</label>
+        </div>
+    </div>
+    <textarea class="import-text"></textarea>
+</div>
+
+<ul id="taskCardMenu" class="context-menu task-card-context-menu" style="display: none">
+    <li>
+        <a href="#">
+            <span class="menu-item-label">New</span>
+        </a>
+        <ul class="context-menu">
+            <li class="menu-add-new-left-card">
+                <a href="#">
+                    <span class="ui-icon ui-icon-triangle-1-w"></span>
+                    <span class="menu-item-label">Add to the left</span>
+                </a>
+            </li>
+            <li class="menu-add-new-right-card">
+                <a href="#">
+                    <span class="ui-icon ui-icon-triangle-1-e"></span>
+                    <span class="menu-item-label">Add to the right</span>
+                </a>
+            </li>
+            <li class="menu-add-new-card">
+                <a href="#">
+                    <span class="ui-icon ui-icon-seek-end"></span>
+                    <span class="menu-item-label">Add to the end</span>
+                    <span class="menu-item-key">Shift+N</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="menu-copy-task-card">
+        <a href="#">
+            <span class="ui-icon ui-icon-copy"></span>
+            <span class="menu-item-label">Clone</span>
+        </a>
+    </li>
+    <li class="ui-state-disabled menu-separator">
+        <a href="#"></a>
+    </li>
+    <li>
+        <a href="#">
+            <span class="ui-icon ui-icon-tag"></span>
+            <span class="menu-item-label">Color</span>
+            <span class="menu-item-key">Shift+C</span>
+        </a>
+        <ul class="context-menu card-color-context-menu">
+            <li class="menu-color menu-card-color-default">
+                <a href="#">
+                    <div class="color-label color-label-default"></div>
+                    <span class="menu-item-label">Default</span>
+                </a>
+            </li>
+            <li class="menu-color menu-card-color-green">
+                <a href="#">
+                    <div class="color-label color-label-green"></div>
+                    <span class="menu-item-label">Green</span>
+                </a>
+            </li>
+            <li class="menu-color menu-card-color-blue">
+                <a href="#">
+                    <div class="color-label color-label-blue"></div>
+                    <span class="menu-item-label">Blue</span>
+                </a>
+            </li>
+            <li class="menu-color menu-card-color-yellow">
+                <a href="#">
+                    <div class="color-label color-label-yellow"></div>
+                    <span class="menu-item-label">Yellow</span>
+                </a>
+            </li>
+            <li class="menu-color menu-card-color-red">
+                <a href="#">
+                    <div class="color-label color-label-red"></div>
+                    <span class="menu-item-label">Red</span>
+                </a>
+            </li>
+            <li class="menu-color menu-card-color-purple">
+                <a href="#">
+                    <div class="color-label color-label-purple"></div>
+                    <span class="menu-item-label">Purple</span>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="ui-state-disabled menu-separator">
+        <a href="#"></a>
+    </li>
+    <li class="menu-union-task-card">
+        <a href="#">
+            <span class="menu-item-label">Union</span>
+            <span class="menu-item-key">Shift+U</span>
+        </a>
+    </li>
+    <li class="menu-split-task-card">
+        <a href="#">
+            <span class="menu-item-label">Split</span>
+            <span class="menu-item-key">Shift+S</span>
+        </a>
+    </li>
+    <li class="ui-state-disabled menu-separator">
+        <a href="#"></a>
+    </li>
+    <li class="menu-enable-task-card">
+        <a href="#">
+            <span class="ui-icon ui-icon-plus"></span>
+            <span class="menu-item-label">Enable</span>
+            <span class="menu-item-key">[=] or [+]</span>
+        </a>
+    </li>
+    <li class="menu-disable-task-card">
+        <a href="#">
+            <span class="ui-icon ui-icon-cancel"></span>
+            <span class="menu-item-label">Disable</span>
+            <span class="menu-item-key">[-]</span>
+        </a>
+    </li>
+    <li class="menu-show-disabled-task-card">
+        <a href="#">
+            <span class="menu-item-label">Show disabled</span>
+            <span class="menu-item-key">Shift+[+]</span>
+        </a>
+    </li>
+    <li class="menu-hide-disabled-task-card">
+        <a href="#">
+            <span class="menu-item-label">Hide disabled</span>
+            <span class="menu-item-key">Shift+[-]</span>
+        </a>
+    </li>
+    <li class="ui-state-disabled menu-separator">
+        <a href="#"></a>
+    </li>
+    <li class="menu-remove-task-card">
+        <a href="#">
+            <span class="ui-icon ui-icon-trash"></span>
+            <span class="menu-item-label">Remove</span>
+            <span class="menu-item-key">Del or Shift+Del</span>
+        </a>
+    </li>
+</ul>
+
+<ul id="cardColorMenu" class="context-menu card-color-context-menu" style="display: none">
+    <li class="menu-card-color-default">
+        <a href="#">
+            <div class="color-label color-label-default"></div>
+            <span class="menu-item-label">Default</span>
+        </a>
+    </li>
+    <li class="menu-card-color-green">
+        <a href="#">
+            <div class="color-label color-label-green"></div>
+            <span class="menu-item-label">Green</span>
+        </a>
+    </li>
+    <li class="menu-card-color-blue">
+        <a href="#">
+            <div class="color-label color-label-blue"></div>
+            <span class="menu-item-label">Blue</span>
+        </a>
+    </li>
+    <li class="menu-card-color-yellow">
+        <a href="#">
+            <div class="color-label color-label-yellow"></div>
+            <span class="menu-item-label">Yellow</span>
+        </a>
+    </li>
+    <li class="menu-card-color-red">
+        <a href="#">
+            <div class="color-label color-label-red"></div>
+            <span class="menu-item-label">Red</span>
+        </a>
+    </li>
+    <li class="menu-card-color-purple">
+        <a href="#">
+            <div class="color-label color-label-purple"></div>
+            <span class="menu-item-label">Purple</span>
+        </a>
+    </li>
+</ul>
+
+</body>
+</html>

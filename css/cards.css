@@ -1,0 +1,919 @@
+html, body, p {
+    padding: 0;
+    margin: 0;
+}
+
+table {
+    border-spacing: 0;
+    border-collapse: collapse;
+}
+
+body {
+    font-size: 9pt;
+}
+
+.editable-input {
+    display: none;
+}
+
+.editable-view {
+    display: block;
+}
+
+.edit > .editable-view {
+    display: none !important;
+}
+
+.edit > .editable-input {
+    display: block !important;
+}
+
+div.card {
+    border: #222222 solid 3px;
+    width: 366px;
+    min-width: 366px;
+    max-width: 746px;
+    height: 263px;
+    border-radius: 35px;
+    font-family: Calibri, sans-serif;
+    margin: 5px 0 0 5px;
+    float: left;
+    overflow: visible;
+    position: relative;
+}
+
+#tasks-container {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#tasks-container > li.card-item {
+    float: left;
+}
+
+#tasks-container > li.card-item.disabled-card {
+    display: none;
+}
+
+li.card-item .card-toolbar .card-button-set button.disable-task-card {
+    display: inline;
+}
+
+li.card-item .card-toolbar .card-button-set button.enable-task-card {
+    display: none;
+}
+
+li.card-item.disabled-card .card-toolbar .card-button-set button.disable-task-card {
+    display: none;
+}
+
+li.card-item.disabled-card .card-toolbar .card-button-set button.enable-task-card {
+    display: inline;
+}
+
+#story-page.show-disabled-cards #tasks-container > li.card-item.disabled-card {
+    display: list-item;
+}
+
+#story-page div#story-card span#hide-disabled-span {
+    display: none;
+}
+
+#story-page div#story-card span#show-disabled-span {
+    display: inline;
+}
+
+#story-page.show-disabled-cards div#story-card span#hide-disabled-span {
+    display: inline;
+}
+
+#story-page.show-disabled-cards div#story-card span#show-disabled-span {
+    display: none;
+}
+
+div.hidden-cards-div {
+    margin: 40px 0 0 1px;
+    border: 1px dashed gray;
+    height: 200px;
+    width: 0;
+}
+
+#hidden-ending-cards {
+    float: left;
+    display: none;
+}
+
+div.task-card > div.hidden-cards-div {
+    position: absolute;
+    left: -7px;
+    display: none;
+}
+
+#tasks-container > li.card-item.disabled-card + li.card-item div.hidden-cards-div {
+    display: block;
+}
+
+#tasks-container > li.card-item.disabled-card + div.ct-printable-marker + li.card-item div.hidden-cards-div {
+    display: block;
+}
+
+#tasks-container > li.card-item.disabled-card + div.ct-printable-marker + div.ct-printable-marker + li.card-item div.hidden-cards-div {
+    display: block;
+}
+
+#tasks-container > li.card-item.disabled-card + div.ct-printable-marker + div.ct-printable-marker + div.ct-printable-marker + li.card-item div.hidden-cards-div {
+    display: block;
+}
+
+#tasks-container > li.card-item.disabled-card + div.ct-printable-marker + div.ct-printable-marker + div.ct-printable-marker + div.ct-printable-marker + li.card-item div.hidden-cards-div {
+    display: block;
+}
+
+#story-page.show-disabled-cards #tasks-container div.task-card > div.hidden-cards-div {
+    display: none !important;
+}
+
+div.card > div.card-toolbar-container {
+    display: none;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+div.card span.card-toolbar {
+    position: relative;
+    width: auto;
+    padding: 7px 2px 6px 2px;
+    font-size: 7.5pt;
+    opacity: 0.3;
+    filter: alpha(opacity = 30);
+}
+
+div.card .card-toolbar:hover {
+    opacity: 1.0;
+    filter: alpha(opacity = 100);
+}
+
+div.card:hover .card-toolbar-container {
+    display: block;
+}
+
+#dialog-export .export-toolbar, #dialog-import .import-toolbar {
+    width: 100%;
+    height: 30px;
+    font-size: 8pt;
+    padding: 5px 0;
+}
+
+textarea.export-text, textarea.import-text {
+    font-size: 11pt;
+    width: 100%;
+    height: 300px;
+    resize: none;
+}
+
+.export-format-button-set, .import-format-button-set {
+    float: left;
+    margin-right: 10px;
+}
+
+.import-rule-button-set, .export-range-button-set {
+    float: right;
+}
+
+#append-after-input {
+    float: right;
+    width: 25px;
+    padding: 4px;
+    text-align: center;
+    margin-left: 3px;
+}
+
+/******************** Card header style ********************/
+
+div.card-header {
+    width: 100%;
+    height: 50px;
+    overflow: hidden;
+    border-top-right-radius: 40px;
+    border-top-left-radius: 40px;
+    border: none;
+    color: #808080;
+}
+
+div.card-header table {
+    height: 100%;
+    width: 100%;
+    font-weight: bold;
+    font-size: 16pt;
+    margin: 0;
+    padding: 0;
+}
+
+div.card-header td.card-id {
+    width: 50%;
+    text-align: left;
+    padding-bottom: 5px;
+    padding-left: 15px;
+    vertical-align: top;
+    padding-top: 9px;
+}
+
+div.card-header td.card-id span {
+    margin-left: 10px;
+    white-space: nowrap;
+    cursor: default;
+}
+
+div.story-card td.card-id span {
+    cursor: pointer;
+}
+
+div.card-header td.card-id input {
+    width: 80px;
+    text-align: center;
+    height: 24px;
+    display: none;
+    font-size: 11pt;
+}
+
+div.card-header td.card-eta {
+    width: 50%;
+    text-align: right;
+    padding-bottom: 5px;
+    padding-right: 15px;
+    vertical-align: top;
+    padding-top: 9px;
+}
+
+div.card-header td.card-eta span {
+    margin-right: 10px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+div.card-header td.card-eta span {
+    display: inline;
+}
+
+div.card-header td.card-eta input {
+    width: 50px;
+    text-align: center;
+    height: 24px;
+    display: none;
+    float: right;
+    margin: 0 10px 5px 0;
+}
+
+/******************** Card content style ********************/
+
+div.card-content {
+    width: 100%;
+    height: 203px;
+    overflow: hidden;
+}
+
+div.card-content table {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+div.card-content td {
+    word-wrap: break-word;
+    max-width: 100px;
+    vertical-align: middle;
+    padding: 0 15px 10px 10px;
+}
+
+div.card-content textarea {
+    width: 98%;
+    height: 150px;
+    font-size: 11pt;
+    background-color: #ffffff;
+    resize: none;
+}
+
+div.card-content div.content-div {
+    white-space: pre-wrap;
+    width: 100%;
+    height: 160px;
+    vertical-align: middle;
+    display: inline;
+}
+
+div.card-content div.content-div p {
+    cursor: default;
+    padding: 0;
+}
+
+div.card-content div.content-div code {
+    font-size: 0.8em !important;
+}
+
+.wiki-list {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    list-style-position: outside;
+}
+
+/************ Chrome **************** */
+/*ol.wiki-list {
+    margin: 0 0 0 1.25em;
+}
+
+.wiki-list ol.wiki-list {
+    margin: 0 0 0 1.15em;
+}
+
+div.ol-list-container {
+    margin: 0 0 0 -0.25em;
+}
+
+.wiki-list ol.wiki-list div.ol-list-container {
+    margin: 0 0 0 -0.28em;
+}
+
+
+ul.wiki-list {
+    margin: 0 0 0 1.1em;
+}
+
+.wiki-list ul.wiki-list {
+    margin: 0 0 0 1em;
+}
+
+div.ul-list-container {
+    margin: 0 0 0 -0.15em;
+}
+
+.wiki-list ul.wiki-list div.ul-list-container {
+    margin: 0 0 0 -0.08em;
+}
+
+div.wiki-tab  {
+    margin: 0;
+    padding: 0 0 0 0.94em;
+}*/
+
+/********* Firefox ***********/
+ol.wiki-list {
+    margin: 0 0 0 1.1em;
+}
+
+.wiki-list ol.wiki-list {
+    margin: 0 0 0 1.1em;
+}
+
+div.ol-list-container {
+    margin: 0 0 0 -0.15em;
+}
+
+.wiki-list ol.wiki-list div.ol-list-container {
+    margin: 0 0 0 -0.2em;
+}
+
+ul.wiki-list {
+    margin: 0 0 0 0.8em;
+}
+
+.wiki-list ul.wiki-list {
+    margin: 0 0 0 0.8em;
+}
+
+div.ul-list-container {
+    margin: 0 0 0 0.17em;
+}
+
+.wiki-list ul.wiki-list div.ul-list-container {
+    margin: 0 0 0 0.1em;
+}
+
+div.wiki-tab {
+    margin: 0;
+    padding: 0 0 0 0.9em;
+}
+
+ol.numeric-list {
+    list-style-type: decimal;
+}
+
+ol.alphabetic-list {
+    list-style-type: lower-latin;
+}
+
+ul.disc-list {
+    list-style-type: disc;
+}
+
+ul.circle-list {
+    list-style-type: circle;
+}
+
+ul.square-list {
+    list-style-type: square;
+}
+
+/******************** Story card specific style ********************/
+
+div.story-card {
+    border-color: #678d0f;
+}
+
+div.story-card div.card-header {
+    color: #678d0f;
+}
+
+#story-card div.card-content table {
+    color: #678d0f;
+    font-size: 20pt;
+}
+
+#story-card div.card-content td {
+    text-align: center;
+    padding: 5px 15px 10px 15px;
+}
+
+#story-card div.card-header {
+    height: 70px;
+    /*background: url("../img/story.png") center top no-repeat;
+    background-size: auto 45px;*/
+}
+
+#story-card div.card-content {
+    height: 190px;
+}
+
+#story-card div.card-header td.cards-info-td {
+    font-size: 9pt;
+    color: #218c03;
+    /*border-bottom: 1px dotted #006400;*/
+    margin: 0;
+    padding: 0;
+}
+
+#story-card div.cards-info {
+    float: right;
+    margin: 0 5px 0 5px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#story-card div.cards-info:hover {
+    color: #004e00;
+    text-decoration: underline;
+}
+
+#story-item div.story-card div.card-header td.card-eta span.story-eta {
+    display: inline;
+}
+
+#story-item div.story-card div.card-header td.card-eta span.total-eta {
+    display: none;
+}
+
+#story-item div.story-card div.card-header td.card-eta span.enabled-eta {
+    display: none;
+}
+
+#story-item.show-total-eta div.story-card div.card-header td.card-eta span.story-eta {
+    display: none;
+}
+
+#story-item.show-total-eta div.story-card div.card-header td.card-eta span.total-eta {
+    display: inline;
+}
+
+#story-item.show-total-eta div.story-card div.card-header td.card-eta span.enabled-eta {
+    display: none;
+}
+
+#story-item.show-enabled-eta div.story-card div.card-header td.card-eta span.story-eta {
+    display: none;
+}
+
+#story-item.show-enabled-eta div.story-card div.card-header td.card-eta span.total-eta {
+    display: none;
+}
+
+#story-item.show-enabled-eta div.story-card div.card-header td.card-eta span.enabled-eta {
+    display: inline;
+}
+
+#story-item.show-enabled-eta div.enabled-info {
+    text-decoration: underline;
+}
+
+#story-item.show-total-eta div.total-info {
+    text-decoration: underline;
+}
+
+/******************** Task card specific style ********************/
+
+/*.task-card div.card-header {
+    background: url("../img/task.png") transparent center top no-repeat;
+    background-size: auto 45px;
+}*/
+
+.task-card div.card-content table {
+    color: #222222;
+    font-size: 16pt;
+}
+
+.task-card div.card-content td {
+    text-align: left;
+    padding: 5px 15px 10px 15px;
+}
+
+li.card-item.disabled-card div.task-card {
+    opacity: 0.4;
+    filter: alpha(opacity = 40);
+}
+
+/*******************************************************************/
+
+ul.ui-autocomplete {
+    font-size: 10pt;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.ui-dialog-buttonpane {
+    height: 30px;
+    padding: 0.3em 1em 0.3em 0.4em !important;
+}
+
+.ui-dialog-titlebar {
+    padding: 0.2em 1em !important;
+}
+
+.ui-dialog-buttonpane button {
+    margin: 0 3px 0 0 !important;
+}
+
+.ui-buttonset {
+    margin-right: 3px;
+}
+
+/********************************************************************/
+#taskCardMenu {
+    min-width: 220px;
+    position: absolute;
+    z-index: 99999;
+}
+
+#taskCardMenu ul {
+    min-width: 220px;
+}
+
+ul.context-menu span.ui-icon {
+}
+
+ul.context-menu li span.menu-item-label {
+    text-align: left;
+}
+
+ul.context-menu span.menu-item-key {
+    margin-left: 40px;
+    text-align: right;
+    float: right;
+}
+
+ul.context-menu li a {
+    white-space: nowrap;
+}
+
+ul.context-menu li.menu-separator a {
+    border: 1px solid #8E846B;
+    height: 0;
+    padding: 0;
+    margin: 0;
+}
+
+ul.context-menu li.menu-separator {
+    margin: 3px 0 3px 0;
+}
+
+#cardColorMenu {
+    position: absolute;
+    z-index: 99999;
+}
+
+ul.card-color-context-menu {
+    min-width: 110px !important;
+    width: 110px !important;
+}
+
+ul.card-color-context-menu li a {
+    padding-left: 5px !important;
+}
+
+ul.context-menu li div.color-label {
+    position: relative;
+    width: 9px;
+    height: 9px;
+    border: #aaaaaa outset 2px;
+    margin: 4px 10px 0 0;
+    float: left;
+}
+
+ul.context-menu li div.color-label-default {
+    background-color: #ffffff;
+}
+
+ul.context-menu li div.color-label-red {
+    background-color: red;
+}
+
+ul.context-menu li div.color-label-yellow {
+    background-color: yellow;
+}
+
+ul.context-menu li div.color-label-green {
+    background-color: #00cb00;
+}
+
+ul.context-menu li div.color-label-blue {
+    background-color: blue;
+}
+
+ul.context-menu li div.color-label-purple {
+    background-color: purple;
+}
+
+.ui-progressbar-value {
+    background-image: url("/img/progress_bar.gif");
+}
+
+.card-color-red > .card {
+    border-color: #e20000;
+    background-color: #ffddd1;
+}
+
+.card-color-red div.card-header {
+    color: #e20000;
+}
+
+.card-color-yellow > .card {
+    border-color: #cfc50e;
+    background-color: #ffffae;
+}
+
+.card-color-yellow div.card-header {
+    color: #cfc50e;
+}
+
+.card-color-green > .card {
+    border-color: #00a300;
+    background-color: #e4ffd3;
+}
+
+.card-color-green div.card-header {
+    color: #00a300;
+}
+
+.card-color-blue > .card {
+    border-color: #0000b0;
+    background-color: #e6ecff;
+}
+
+.card-color-blue div.card-header {
+    color: #0000b0;
+}
+
+.card-color-purple > .card {
+    border-color: purple;
+    background-color: #ffcef9;
+}
+
+.card-color-purple div.card-header {
+    color: purple;
+}
+
+@media screen {
+    /*li.card-item.ui-selected div.task-card {
+        background-image: url("../img/pixel2x2.png");
+        background-repeat: repeat;
+    }*/
+
+    li.card-item.ui-selected > .card {
+        background-color: #cfcfcf;
+    }
+
+    li.card-item.ui-selected.card-color-red > .card {
+        background-color: #ff8982;
+    }
+
+    li.card-item.ui-selected.card-color-yellow > .card {
+        background-color: #fffc55;
+    }
+
+    li.card-item.ui-selected.card-color-green > .card {
+        background-color: #70ff61;
+    }
+
+    li.card-item.ui-selected.card-color-blue > .card {
+        background-color: #8d8eff;
+    }
+
+    li.card-item.ui-selected.card-color-purple > .card {
+        background-color: #ff59ed;
+    }
+
+    li.card-item.last-selected div.task-card, div#story-item.last-selected div.story-card {
+        box-shadow: 0 0 15px 4px orange;
+        -moz-box-shadow: 0 0 15px 4px orange;
+        -webkit-box-shadow: 0 0 15px 4px orange;
+    }
+}
+
+@media print {
+    div.card-toolbar-container {
+        display: none !important;
+    }
+
+    :root {
+        -webkit-print-color-adjust: exact
+    }
+
+}
+
+/*******************Printable css*****************************/
+.ct-printable-page {
+    position: relative;
+    overflow-y: visible;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+
+div.ct-printable-offset {
+    position: relative;
+}
+
+div.ct-printable-page-margin-bottom {
+    position: relative;
+    page-break-after: always;
+}
+
+div.ct-printable-page-margin-top {
+    position: relative;
+}
+
+@media screen {
+    div.ct-printable-page-header {
+        position: absolute !important;
+        display: block !important;
+        width: 100%;
+        height: 0;
+        text-align: center;
+        font-size: 8pt;
+        font-family: Arial, sans-serif;
+        overflow: visible;
+        border-bottom: 1px dotted gray;
+        color: #999999;
+    }
+
+    div.ct-printable-print-offset {
+        display: none !important;
+    }
+}
+
+@media print {
+    div.ct-printable-page-header {
+        display: none !important;
+    }
+
+    div.ct-printable-print-offset {
+    }
+}
+
+/***********************************************8*/
+
+/****************Card Label*******************************8*/
+
+div.card-label {
+    font-size: 10pt;
+    position: absolute;
+    width: 2.5em;
+    height: 2.5em;
+    left: 50%;
+    border-width: 0.25em;
+    border-style: solid;
+    margin: 0.4em 0 0 -1.25em;
+    padding: 0.25em;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    border-radius: 0.4em;
+
+}
+
+div.card-label-el {
+    position: absolute;
+    border-style: solid;
+    border-width: 0.1em;
+    height: 0;
+}
+
+div.card-label-id {
+    width: 0.35em;
+    border-width: 0.15em;
+}
+
+div.card-label-eta {
+    right: 0.2em;
+    width: 0.15em;
+    border-width: 0.15em;
+}
+
+div.card-label-desc-line1 {
+    top: 0.9em;
+    width: 1.2em;
+}
+
+div.card-label-desc-line2 {
+    top: 1.25em;
+    width: 1em;
+}
+
+div.card-label-desc-line3 {
+    top: 1.6em;
+    width: 1.3em;
+}
+
+div.card-label-el {
+    border-color: inherit;
+    height: 0;
+}
+
+div.card-label {
+    /*z-index: -1;*/
+    border-color: #959595;
+    background-color: #d9d9d9;
+}
+
+.card-color-red div.card-label {
+    border-color: #dd534f;
+    background-color: #f2ada7;
+}
+
+.card-color-yellow div.card-label {
+    border-color: #d9cb3a;
+    background-color: #eced8c;
+}
+
+.card-color-green div.card-label {
+    border-color: #3bca3c;
+    background-color: #a3f28e;
+}
+
+.card-color-blue div.card-label {
+    border-color: #6d6ddf;
+    background-color: #c4c2ff;
+}
+
+.card-color-purple div.card-label {
+    border-color: #cf57ca;
+    background-color: #e9a7d9;
+}
+
+#story-card div.card-label:nth-of-type(5) {
+    margin-left: -3.3em;
+    margin-top: 0.4em;
+    border-color: #3bca3c;
+    background-color: #a3f28e;
+}
+
+#story-card div.card-label:nth-of-type(4) {
+    margin-left: -2.3em;
+    margin-top: 0.9em;
+    border-color: #d9cb3a;
+    background-color: #eced8c;
+}
+
+#story-card div.card-label:nth-of-type(3) {
+    margin-left: -1.25em;
+    margin-top: 0.2em;
+    border-color: #dd534f;
+    background-color: #f2ada7;
+}
+
+#story-card div.card-label:nth-of-type(2) {
+    margin-left: -0.1em;
+    margin-top: 0.9em;
+    border-color: #cf57ca;
+    background-color: #e9a7d9;
+}
+
+#story-card div.card-label:nth-of-type(1) {
+    margin-left: 1em;
+    margin-top: 0.4em;
+    border-color: #6d6ddf;
+    background-color: #c4c2ff;
+}

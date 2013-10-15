@@ -1,0 +1,16 @@
+div.ct-editable-view {
+    display: inline;
+    cursor: pointer;
+}
+
+input.ct-editable-input, textarea.ct-editable-input {
+    display: none;
+}
+
+div.ct-editable-view.ct-editable-edit {
+    display: none;
+}
+
+input.ct-editable-input.ct-editable-edit, textarea.ct-editable-input.ct-editable-edit {
+    display: block;
+}
