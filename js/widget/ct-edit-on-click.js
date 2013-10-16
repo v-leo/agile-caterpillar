@@ -32,7 +32,7 @@
             viewClass: undefined,
             viewTitle: "Click to edit",
 
-            ctrlEnterToFinish:false,
+            ctrlEnterToFinish: false,
             selectOnStart: false,
             moveToEndOnStart: false,
             stopOnBlur: true,
@@ -62,7 +62,6 @@
             //this._hoverable(this._inputView);
 
             this.element.addClass("ct-editable-input");
-            var node = this.element[0].nodeName.toLowerCase();
 
             this.element.bind('keydown.' + this.widgetName, function (event) {
                 if ((event.which === 13 || event.which === 108) && (!self.options.ctrlEnterToFinish || event.ctrlKey)) {
@@ -108,7 +107,7 @@
             this._checkAndUpdateFuncOption("cancel", this.options.cancel);
 
             this._updateMaxLength(this.options.maxLength);
-            this._updateValue(this.options.value, true);
+            this._updateValue(this.options.value, true, true);
         },
 
         _destroy: function () {
@@ -143,7 +142,7 @@
             }
         },
 
-        _updateValue: function (value, initialUpdate) {
+        _updateValue: function (value, explicitUpdate, initialUpdate) {
             var type = typeof value,
                 oldValue = this.options.value;
             if (type !== "string" && type !== "number") {
@@ -152,7 +151,16 @@
             }
 
             if (initialUpdate !== true) {
-                if (false === this._trigger("beforeUpdate", null, [this.element, value, oldValue])) {
+                if (oldValue === value) {
+                    return;
+                }
+
+                if (false === this._trigger("beforeUpdate", null, {
+                    element: this.element,
+                    newValue: value,
+                    oldValue: oldValue,
+                    isUiUpdate: !explicitUpdate
+                })) {
                     return;
                 }
             }
@@ -166,7 +174,12 @@
                 this._inputView.text(this.options.value);
             }
             if (initialUpdate !== true) {
-                this._trigger("update", null, [this.element, this.options.value, oldValue]);
+                this._trigger("update", null, {
+                    element: this.element,
+                    newValue: this.options.value,
+                    oldValue: oldValue,
+                    isUiUpdate: !explicitUpdate
+                });
             }
         },
 
@@ -183,7 +196,7 @@
 
         _updateConverter: function (converter) {
             var result = this._checkAndUpdateFuncOption("converter", converter);
-            this._updateValue(this.options.value);
+            this._updateValue(this.options.value, true, true);
             return result;
         },
 
@@ -206,7 +219,7 @@
                     value = this._updateMaxLength(value);
                     break;
                 case "value":
-                    value = this._updateValue(value);
+                    value = this._updateValue(value, true);
                     break;
                 case "converter":
                     value = this._updateConverter(value);
@@ -233,12 +246,12 @@
             this.element.removeClass("ct-editable-edit");
             this._inputView.removeClass("ct-editable-edit");
             if (cancelFlag === true) {
-                this._trigger("cancel", null, [this.element]);
+                this._trigger("cancel", null, {element: this.element});
             }
         },
 
         refresh: function () {
-            this._updateValue(this.options.value, true);
+            this._updateValue(this.options.value, true, true);
         },
 
         stopEdit: function () {
@@ -246,7 +259,7 @@
         },
 
         startEdit: function () {
-            if (false === this._trigger("beforeStart", null, [this.element])) {
+            if (false === this._trigger("beforeStart", null, {element: this.element})) {
                 return;
             }
             this.element.addClass("ct-editable-edit");
@@ -257,8 +270,9 @@
             } else if (this.options.moveToEndOnStart === true) {
                 var textLength = this.element[0].value.length;
                 this.element[0].setSelectionRange(textLength, textLength);
+                this.element.scrollTop(this.element[0].scrollHeight);
             }
-            this._trigger("start", null, [this.element])
+            this._trigger("start", null, {element: this.element})
         },
 
         value: function () {

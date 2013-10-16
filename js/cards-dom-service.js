@@ -23,7 +23,7 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
+var Caterpillar = Caterpillar || {};
 Caterpillar.DomService = new function () {
     var _this = this;
 
@@ -90,10 +90,6 @@ Caterpillar.DomService = new function () {
         return _this.getStoryCard().hasClass("show-enabled-eta");
     };
 
-    this.getStoryStoryEtaSpan = function () {
-        return $("#story-eta-span");
-    };
-
     this.getStoryTotalEtaSpan = function () {
         return $("#total-eta-span");
     };
@@ -127,11 +123,7 @@ Caterpillar.DomService = new function () {
     };
 
     this.getCardIdSpan = function (card) {
-        return card.find("div.card-header td.card-id span");
-    };
-
-    this.getCardEtaSpan = function (card) {
-        return card.find("div.card-header td.card-eta span");
+        return card.find("div.card-header td.card-id div");
     };
 
     this.getStoryIdValueInput = function () {
@@ -161,10 +153,6 @@ Caterpillar.DomService = new function () {
     this.getCardContentTd = function (card) {
             return card.find("div.card-content td");
         };
-
-    this.getCardContentDiv = function (card) {
-        return card.find("div.card-content div.content-div");
-    };
 
     this.getCardToolbarButtonSet = function (card) {
         return card.find("div.card-toolbar-container .card-button-set")
@@ -196,6 +184,10 @@ Caterpillar.DomService = new function () {
 
     this.getColorButton = function (toolBarButtonSet) {
         return toolBarButtonSet.find(">button.card-color");
+    };
+
+    this.getMenuButton = function (toolBarButtonSet) {
+        return toolBarButtonSet.find(">button.card-menu");
     };
 
     this.getDisabledCards = function () {
@@ -270,31 +262,5 @@ Caterpillar.DomService = new function () {
 
     this.makeCardEnabled = function (card) {
         card.removeClass("disabled-card");
-    };
-
-    this.startEditInputOrTextarea = function (element) {
-        var parent = element.parent();
-        parent.addClass("edit");
-        element.focus();
-    };
-
-    this.cancelEditing = function (editingElement) {
-        editingElement.parent().removeClass("edit");
-    };
-
-    this.__getAllCardEstimationSpans__ = function() {
-        return $("div.card > div.card-header td.card-eta span");
-    };
-
-    this.__getAllCardContentTds__ = function() {
-        return $("div.card > div.card-content td");
-    };
-
-    this.__getAllCardTextareas__ = function() {
-        return $("div.card > div.card-content textarea");
-    };
-
-    this.__getAllCardEstimationInputs__ = function() {
-        return $("div.card > div.card-header input.card-eta-input");
     };
 };

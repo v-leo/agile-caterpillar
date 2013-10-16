@@ -27,37 +27,37 @@
 (function ($, undefined) {
 
     var DEFAULT_PAPER_SIZES = {
-        "A7":{width:280, height:397},
-        "A6":{width:397, height:560},
-        "A5":{width:560, height:794},
-        "A4":{width:794, height:1123},
-        "A3":{width:1123, height:1588},
-        "A2":{width:1588, height:2245},
-        "A1":{width:2245, height:3178},
-        "A0":{width:3178, height:4494}
+        "A7": {width: 280, height: 397},
+        "A6": {width: 397, height: 560},
+        "A5": {width: 560, height: 794},
+        "A4": {width: 794, height: 1123},
+        "A3": {width: 1123, height: 1588},
+        "A2": {width: 1588, height: 2245},
+        "A1": {width: 2245, height: 3178},
+        "A0": {width: 3178, height: 4494}
     };
 
     $.widget("ct.ctPrintable", {
-        options:{
-            items:"> *",
-            size:{
-                paperSize:"A4",
-                orientation:"portrait",
-                width:794,
-                height:1123
+        options: {
+            items: "> *",
+            size: {
+                paperSize: "A4",
+                orientation: "portrait",
+                width: 794,
+                height: 1123
             },
-            padding:{
-                top:10,
-                bottom:15,
-                left:17,
-                right:22
+            padding: {
+                top: 10,
+                bottom: 15,
+                left: 17,
+                right: 22
             }
         },
-        _pageCount:0,
-        _pageWidth:0,
-        _pageHeight:0,
-        _items:null,
-        _create:function () {
+        _pageCount: 0,
+        _pageWidth: 0,
+        _pageHeight: 0,
+        _items: null,
+        _create: function () {
             var page = this.element,
                 px = "px";
             page.addClass("ct-printable ct-printable-page");
@@ -67,7 +67,7 @@
             page.css("padding", "0 " + this.options.padding.right + px + " 0 " + this.options.padding.left + px);
             this.refresh();
         },
-        refresh:function () {
+        refresh: function () {
             var self = this,
                 page = this.element;
             page.find("div.ct-printable-marker").remove();
@@ -93,14 +93,14 @@
                 printOffset = 0;
             this._items.each(function (index, el) {
                 var item = $(el),
-                height = item.outerHeight(true),
-                top = item.offset().top + printOffset - parseInt(item.css("margin-top")) | 0,
-                left = item.offset().left - parseInt(item.css("margin-left")) | 0,
-                curPage = (top / pageTotalHeight | 0) + 1,
-                pageBottomMarker = curPage * pageTotalHeight,
-                itemBottomMarker = top + height,
-                pageAvailableBottomMarker = pageBottomMarker - paddingBottom,
-                i;
+                    height = item.outerHeight(true),
+                    top = item.offset().top + printOffset - parseInt(item.css("margin-top")) | 0,
+                    left = item.offset().left - parseInt(item.css("margin-left")) | 0,
+                    curPage = (top / pageTotalHeight | 0) + 1,
+                    pageBottomMarker = curPage * pageTotalHeight,
+                    itemBottomMarker = top + height,
+                    pageAvailableBottomMarker = pageBottomMarker - paddingBottom,
+                    i;
 
                 for (i = lastPageWithBreak; i < curPage; i++) {
                     self._createPageHeader(i + 1, i * pageTotalHeight - printOffset, paddingLeft)
@@ -165,14 +165,14 @@
             }
 
             this._pageCount = lastPage;
-            this._trigger("refresh", null, [this.element, lastPage]);
+            this._trigger("refresh", null, {element: this.element, totalPageCount: lastPage});
         },
-        _destroy:function () {
+        _destroy: function () {
             this.element.find("div.ct-printable-marker").remove();
             this.element.find(this.options.items).removeClass("ct-printable-item");
             this.element.removeClass("ct-printable ct-printable-page");
         },
-        _updatePageSize:function (size, refresh) {
+        _updatePageSize: function (size, refresh) {
             var width = this._pageWidth,
                 height = this._pageHeight;
             if (size) {
@@ -201,18 +201,18 @@
                 this.refresh();
             }
         },
-        _updateItemsSelector:function (selector) {
+        _updateItemsSelector: function (selector) {
             this.element.find(this.options.items).removeClass("ct-printable-item");
             this.options.items = selector;
             this.refresh();
         },
-        _updatePagePadding:function (padding, refresh) {
+        _updatePagePadding: function (padding, refresh) {
             $.extend(this.element.padding, padding);
             if (refresh) {
                 this.refresh();
             }
         },
-        _setOption:function (key, value) {
+        _setOption: function (key, value) {
             if (value === undefined) {
                 return this.options[key];
             }
@@ -230,25 +230,25 @@
                     this._super("_setOption", key, value);
             }
         },
-        _createPageMargin:function (isTop, marginSize, floatType) {
+        _createPageMargin: function (isTop, marginSize, floatType) {
             return $('<div class="ct-printable-marker"></div>')
                 .addClass(isTop && "ct-printable-page-margin-top" || "ct-printable-page-margin-bottom")
                 .height(marginSize)
                 .css("float", floatType);
         },
-        _createPageHeader:function (pageNumber, top, pagePaddingLeft) {
+        _createPageHeader: function (pageNumber, top, pagePaddingLeft) {
             return $('<div class="ct-printable-marker ct-printable-page-header"></div>')
-                .offset({top:top})
+                .offset({top: top})
                 .css("margin-left", "-" + pagePaddingLeft + "px")
                 .append($('<span></span>').html("&mdash; Page " + pageNumber + " &mdash;"))
         },
-        pageCount:function () {
+        pageCount: function () {
             return this._pageCount;
         },
-        pageWidth:function () {
+        pageWidth: function () {
             return this._pageWidth;
         },
-        pageHeight:function () {
+        pageHeight: function () {
             return this._pageHeight;
         }
     });

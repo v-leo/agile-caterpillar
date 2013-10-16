@@ -38,6 +38,7 @@ body {
     font-size: 9pt;
 }
 
+/*
 .editable-input {
     display: none;
 }
@@ -53,6 +54,7 @@ body {
 .edit > .editable-input {
     display: block !important;
 }
+*/
 
 div.card {
     border: #222222 solid 3px;
@@ -175,12 +177,12 @@ div.card span.card-toolbar {
     padding: 7px 2px 6px 2px;
     font-size: 7.5pt;
     opacity: 0.3;
-    filter: alpha(opacity = 30);
+    filter: alpha(opacity=30);
 }
 
 div.card .card-toolbar:hover {
     opacity: 1.0;
-    filter: alpha(opacity = 100);
+    filter: alpha(opacity=100);
 }
 
 div.card:hover .card-toolbar-container {
@@ -248,13 +250,13 @@ div.card-header td.card-id {
     padding-top: 9px;
 }
 
-div.card-header td.card-id span {
+div.card-header td.card-id div {
     margin-left: 10px;
     white-space: nowrap;
     cursor: default;
 }
 
-div.story-card td.card-id span {
+div.story-card td.card-id div {
     cursor: pointer;
 }
 
@@ -262,7 +264,6 @@ div.card-header td.card-id input {
     width: 80px;
     text-align: center;
     height: 24px;
-    display: none;
     font-size: 11pt;
 }
 
@@ -280,6 +281,7 @@ div.card-header td.card-eta div {
     white-space: nowrap;
 }
 
+/*
 div.card-header td.card-eta span {
     margin-right: 10px;
     white-space: nowrap;
@@ -289,6 +291,7 @@ div.card-header td.card-eta span {
 div.card-header td.card-eta span {
     display: inline;
 }
+*/
 
 div.card-header td.card-eta input {
     width: 50px;
@@ -328,6 +331,10 @@ div.card-content textarea {
     resize: none;
 }
 
+div.story-card div.card-content textarea {
+    height: 130px;
+}
+
 div.card-content div.content-div {
     white-space: pre-wrap;
     width: 100%;
@@ -338,6 +345,14 @@ div.card-content div.content-div {
 div.card-content div.content-div p {
     padding: 0;
 }
+
+/*
+@media screen {
+    div.card-content div.content-div p, div.card-content div.content-div ul, div.card-content div.content-div ol {
+        background-color: #f6f6f6;
+    }
+}
+*/
 
 div.card-content div.content-div code {
     font-size: 0.8em !important;
@@ -497,39 +512,45 @@ div.story-card div.card-header {
     text-decoration: underline;
 }
 
-#story-item div.story-card div.card-header td.card-eta span.story-eta {
+#story-item div.story-card div.card-header td.card-eta div.story-eta {
     display: inline;
 }
 
-#story-item div.story-card div.card-header td.card-eta span.total-eta {
+#story-item div.story-card div.card-header td.card-eta div.story-eta.ct-editable-edit {
     display: none;
 }
 
-#story-item div.story-card div.card-header td.card-eta span.enabled-eta {
+#story-item div.story-card div.card-header td.card-eta div.total-eta {
+    display: none;
+    cursor: default;
+}
+
+#story-item div.story-card div.card-header td.card-eta div.enabled-eta {
+    display: none;
+    cursor: default;
+}
+
+#story-item.show-total-eta div.story-card div.card-header td.card-eta div.story-eta {
     display: none;
 }
 
-#story-item.show-total-eta div.story-card div.card-header td.card-eta span.story-eta {
-    display: none;
-}
-
-#story-item.show-total-eta div.story-card div.card-header td.card-eta span.total-eta {
+#story-item.show-total-eta div.story-card div.card-header td.card-eta div.total-eta {
     display: inline;
 }
 
-#story-item.show-total-eta div.story-card div.card-header td.card-eta span.enabled-eta {
+#story-item.show-total-eta div.story-card div.card-header td.card-eta div.enabled-eta {
     display: none;
 }
 
-#story-item.show-enabled-eta div.story-card div.card-header td.card-eta span.story-eta {
+#story-item.show-enabled-eta div.story-card div.card-header td.card-eta div.story-eta {
     display: none;
 }
 
-#story-item.show-enabled-eta div.story-card div.card-header td.card-eta span.total-eta {
+#story-item.show-enabled-eta div.story-card div.card-header td.card-eta div.total-eta {
     display: none;
 }
 
-#story-item.show-enabled-eta div.story-card div.card-header td.card-eta span.enabled-eta {
+#story-item.show-enabled-eta div.story-card div.card-header td.card-eta div.enabled-eta {
     display: inline;
 }
 
@@ -560,7 +581,7 @@ div.story-card div.card-header {
 
 li.card-item.disabled-card div.task-card {
     opacity: 0.4;
-    filter: alpha(opacity = 40);
+    filter: alpha(opacity=40);
 }
 
 /*******************************************************************/
@@ -730,7 +751,6 @@ ul.context-menu li div.color-label-purple {
         background-image: url("../img/pixel2x2.png");
         background-repeat: repeat;
     }*/
-
     li.card-item.ui-selected > .card {
         background-color: #cfcfcf;
     }

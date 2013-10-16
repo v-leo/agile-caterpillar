@@ -24,7 +24,7 @@
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-
+var Caterpillar = Caterpillar || {};
 $(document).ready(function () {
     Caterpillar.ExpImp.__initExportImportDialogs__();
     Caterpillar.ExpImp.__initHotKeys__();
@@ -352,7 +352,9 @@ Caterpillar.ExpImp = new function () {
             } else {
                 existedStory = story;
             }
-            Caterpillar.Storage.saveOrUpdateStory(existedStory);
+            if (Caterpillar.Storage) {
+                Caterpillar.Storage.saveOrUpdateStory(existedStory);
+            }
 
             if (Caterpillar.History) {
                 Caterpillar.History.addToStoryHistory(existedStory.id, existedStory.description);

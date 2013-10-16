@@ -24,6 +24,7 @@
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+var Caterpillar = Caterpillar || {};
 
 $(document).ready(function () {
     Caterpillar.ContextMenu.__initCardsContextMenu__();
@@ -59,8 +60,8 @@ Caterpillar.ContextMenu = new function () {
     this.__initHotKeys__ = function () {
         if (Caterpillar.HotKeys && Caterpillar.Selecting) {
             Caterpillar.HotKeys.registerHotKey({
-                keyCode:93,
-                callback:function (event) {
+                keyCode: 93,
+                callback: function (event) {
                     var card = Caterpillar.Selecting.getLastSelectedCard();
                     if (!card.length && !Caterpillar.Selecting.isLastSelectedCard(Caterpillar.DomService.getStoryCard())) {
                         var firstSelected = Caterpillar.Selecting.getSelectedCards().first();
@@ -77,12 +78,12 @@ Caterpillar.ContextMenu = new function () {
                         _this.showTaskContextMenu(event, x, y);
                     }
                 },
-                condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
+                condition: Caterpillar.HotKeys.notInputNotTextareaNotOverlay
             });
             Caterpillar.HotKeys.registerHotKey({
-                keyCode:67,
-                shiftKey:true,
-                callback:function (event) {
+                keyCode: 67,
+                shiftKey: true,
+                callback: function (event) {
                     var lastSelectedCard = Caterpillar.Selecting.getLastSelectedCardOrStoryCard();
                     if (lastSelectedCard.length > 0) {
                         _this.showCardColorContextMenu(event, lastSelectedCard);
@@ -94,7 +95,7 @@ Caterpillar.ContextMenu = new function () {
                         }
                     }
                 },
-                condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
+                condition: Caterpillar.HotKeys.notInputNotTextareaNotOverlay
             });
         }
     };
@@ -117,7 +118,7 @@ Caterpillar.ContextMenu = new function () {
         }
 
         _this.getCardColorContextMenu().menu({
-            select:function (event, ui) {
+            select: function (event, ui) {
                 function getCards() {
                     var cards = _this.__getSelectedCardFromMenu__(_this.getCardColorContextMenu());
                     if (Caterpillar.Selecting && Caterpillar.Selecting.isSelectedCard(cards)) {
@@ -148,7 +149,7 @@ Caterpillar.ContextMenu = new function () {
             });
 
         _this.getTaskCardContextMenu().menu({
-            focus:function (event, ui) {
+            focus: function (event, ui) {
                 var item = ui.item;
                 if (item.is(":visible")) {
                     if (item.hasClass("menu-separator")) {
@@ -162,7 +163,7 @@ Caterpillar.ContextMenu = new function () {
                     }
                 }
             },
-            select:function (event, ui) {
+            select: function (event, ui) {
                 function getCards() {
                     var cards = _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu());
                     if (Caterpillar.Selecting && Caterpillar.Selecting.isSelectedCard(cards)) {
@@ -178,15 +179,25 @@ Caterpillar.ContextMenu = new function () {
                     event.stopPropagation();
 
                     if (item.hasClass("menu-add-new-card")) {
-                          Caterpillar.Core.addNewCard(true);
+                        Caterpillar.Core.addNewCard();
+                        if (Caterpillar.Storage) {
+                            Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
+                        }
                     } else if (item.hasClass("menu-add-new-left-card")) {
-                        Caterpillar.Core.addNewCard(true, _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()), true);
+                        Caterpillar.Core.addNewCard(_this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()), true);
+                        if (Caterpillar.Storage) {
+                            Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
+                        }
                     } else if (item.hasClass("menu-add-new-right-card")) {
-                        Caterpillar.Core.addNewCard(true, _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()), false);
+                        Caterpillar.Core.addNewCard(_this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu()), false);
+                        if (Caterpillar.Storage) {
+                            Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
+                        }
                     } else if (item.hasClass("menu-copy-task-card")) {
                         var selectedCard = _this.__getSelectedCardFromMenu__(_this.getTaskCardContextMenu());
-                        var newCard = Caterpillar.Core.addNewCard(false, selectedCard, false);
+                        var newCard = Caterpillar.Core.addNewCard(selectedCard, false);
                         Caterpillar.Core.updateCard(newCard, Caterpillar.Core.cardToJson(selectedCard));
+                        Caterpillar.Core.updateTotalEstimation();
                         if (Caterpillar.Storage) {
                             Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
                         }
@@ -236,8 +247,10 @@ Caterpillar.ContextMenu = new function () {
 
         $("div.task-card").live("mouseup", function (event) {
             if (event.which == 3 && !Caterpillar.DomService.isTargetInputOrTextarea(event)) {
-                _this.__setSelectedCardToMenu__(_this.getTaskCardContextMenu(), $(this).parent());
-                _this.showTaskContextMenu(event, event.pageX, event.pageY);
+                if (!$(event.target).closest("button").length) {
+                    _this.__setSelectedCardToMenu__(_this.getTaskCardContextMenu(), $(this).parent());
+                    _this.showTaskContextMenu(event, event.pageX, event.pageY);
+                }
             }
         });
 
@@ -266,6 +279,14 @@ Caterpillar.ContextMenu = new function () {
         menu.css("left", x + "px");
         menu.show().focus();
         menu.menu("blur");
+    };
+
+    this.showCardContextMenu = function (event, card) {
+        var menu = _this.getTaskCardContextMenu();
+        _this.__setSelectedCardToMenu__(menu, card);
+        var y = card.position().top + 50;
+        var x = card.position().left + 30;
+        _this.showTaskContextMenu(event, x, y);
     };
 
     this.closeTaskContextMenu = function () {

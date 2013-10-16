@@ -23,7 +23,7 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
+var Caterpillar = Caterpillar || {};
 
 $(document).ready(function () {
     Caterpillar.Selecting.initCardsSelecting();
@@ -129,6 +129,7 @@ Caterpillar.Selecting = new function () {
                 if (event.which == 3 && !Caterpillar.DomService.isTargetInputOrTextarea(event)) {
                     event.preventDefault();
                 }
+                var isTargetNodeButton = $(event.target).closest("button").length > 0;
 
                 var lastSelectedCard = _this.getLastSelectedCard();
                 _this.unSelectLastSelectedCard(lastSelectedCard);
@@ -136,7 +137,7 @@ Caterpillar.Selecting = new function () {
 
                 var item;
                 var i;
-                if (event.which == 1 && event.shiftKey) {
+                if (event.which == 1 && event.shiftKey && !isTargetNodeButton) {
                     var items = Caterpillar.Core.getAllCards();
                     var prevIndex = -1;
                     //noinspection JSCheckFunctionSignatures,JSValidateTypes
@@ -196,28 +197,30 @@ Caterpillar.Selecting = new function () {
                     }
                     _this.selectCards(card);
                     _this.setLastSelectedCard(card);
-                } else if (event.ctrlKey && isSelected == true && event.which == 1) {
+                } else if (event.ctrlKey && isSelected == true && event.which == 1 && !isTargetNodeButton) {
                     _this.setLastSelectedCard(lastSelectedCard);
                     _this.unSelectCards(card);
                 } else {
                     _this.setLastSelectedCard(card);
 
-                    if ((event.which == 1 && !event.ctrlKey) || (event.which == 3 && isSelected == false)) {
+                    if ((event.which == 1 && !event.ctrlKey && !isTargetNodeButton)/* || (event.which == 3 && isSelected == false)*/) {
                         _this.unSelectCards(_this.getSelectedCards());
                     }
 
-                    if (event.which == 1 /*|| event.ctrlKey || event.shiftKey*/) {
+                    if (event.which == 1 && !isTargetNodeButton /*|| event.ctrlKey || event.shiftKey*/) {
                         _this.selectCards(card);
                     }
                 }
             } else if (event.which == 2) {
                 event.preventDefault();
-                if (isSelected) {
-                    _this.unSelectCards(card);
-                    _this.unSelectLastSelectedCard(card);
-                } else {
-                    _this.selectCards(card);
-                    _this.setLastSelectedCard(card);
+                if (!isTargetNodeButton) {
+                    if (isSelected) {
+                        _this.unSelectCards(card);
+                        _this.unSelectLastSelectedCard(card);
+                    } else {
+                        _this.selectCards(card);
+                        _this.setLastSelectedCard(card);
+                    }
                 }
             }
         });
@@ -345,7 +348,9 @@ Caterpillar.Selecting = new function () {
         });
 
         htmlTag.mousedown(function (event) {
-            if (event.which == 1 && !event.ctrlKey && event.pageX > Caterpillar.DomService.getStoryPage().ctPrintable("pageWidth")) {
+            if (event.which == 1 && !event.ctrlKey &&
+                event.pageX > Caterpillar.DomService.getStoryPage().ctPrintable("pageWidth") &&
+                !$(event.target).closest("ul.ui-menu").length) {
                 _this.unSelectCards(_this.getSelectedCards());
                 _this.unSelectLastSelectedCard(_this.getLastSelectedCard());
                 _this.unSelectLastSelectedCard(Caterpillar.DomService.getStoryCard());
@@ -426,7 +431,7 @@ Caterpillar.Selecting = new function () {
             keyCode:72,
             shiftKey:true,
             callback:function(){
-                Caterpillar.DomService.getCardEtaSpan(Caterpillar.Selecting.getLastSelectedCardOrStoryCard()).trigger("click");
+                Caterpillar.DomService.getCardEtaInput(Caterpillar.Selecting.getLastSelectedCardOrStoryCard()).ctEditOnClick("startEdit");
             },
             condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlay
         });
@@ -434,7 +439,7 @@ Caterpillar.Selecting = new function () {
         Caterpillar.HotKeys.registerHotKey({
             keyCode:[13,108],
             callback:function(){
-                startEditCardDescription(Caterpillar.Selecting.getLastSelectedCardOrStoryCard());
+                Caterpillar.DomService.getCardDescriptionTextarea(Caterpillar.Selecting.getLastSelectedCardOrStoryCard()).ctEditOnClick("startEdit");
             },
             condition:Caterpillar.HotKeys.notInputNotTextareaNotOverlayNotContextMenu
         });
@@ -573,7 +578,3 @@ Caterpillar.Selecting = new function () {
     }
 
 };
-
-function startEditCardDescriptionInternal() {
-    startEditCardDescription(Caterpillar.DomService.getCardDescriptionTextarea(Caterpillar.Selecting.getLastSelectedCardOrStoryCard()));
-}

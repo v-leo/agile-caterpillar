@@ -23,7 +23,7 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
+var Caterpillar = Caterpillar || {};
 
 $(document).ready(function () {
     Caterpillar.History.loadStoryHistory();
@@ -66,7 +66,10 @@ Caterpillar.History = new function() {
 
     this.loadStoryHistory = function () {
         storyHistory = [];
-        var stories = Caterpillar.Storage.getAllStoriesFromStorage();
+        var stories = [];
+        if (Caterpillar.Storage) {
+            stories = Caterpillar.Storage.getAllStoriesFromStorage();
+        }
         for (var key in stories) {
             var historyItem = {};
             //noinspection JSUnfilteredForInLoop

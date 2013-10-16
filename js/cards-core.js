@@ -23,7 +23,7 @@
  IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
+var Caterpillar = Caterpillar || {};
 Caterpillar.Core = new function () {
     var _this = this;
 
@@ -35,7 +35,7 @@ Caterpillar.Core = new function () {
     this.MIN_CARD_WIDTH = 366;
     this.MAX_CARD_WIDTH = 746;
 
-    this.addNewCard = function (updateStorageFlag, position, beforeFlag) {
+    this.addNewCard = function (position, beforeFlag) {
         var cardTemplate = Caterpillar.DomService.getTaskCardTemplate().clone();
         cardTemplate.removeAttr("id");
 
@@ -65,6 +65,7 @@ Caterpillar.Core = new function () {
             selectOnStart: true,
             maxLength: 2,
             value: 0,
+            viewTitle: "Task estimation (Click or Shift+H)",
             keyValidator: function (event, which) {
                 return (which < 48 && which != 32) || !isNaN(parseInt(String.fromCharCode(which)));
             },
@@ -72,15 +73,22 @@ Caterpillar.Core = new function () {
                 value = Caterpillar.Util.checkAndFixNumberValue(value);
                 return Caterpillar.Util.estimationToString(value);
             },
-            beforeUpdate: function (event, el, value) {
-                return !value || !isNaN(parseInt(value));
+            create: function() {
+                var el = $(this);
+                var card = Caterpillar.DomService.getCardByChild(el);
+                Caterpillar.DomService.getCardEtaValueInput(card).val(el.ctEditOnClick("option", "value"));
             },
-            update: function (event, el, value) {
-                var card = Caterpillar.DomService.getCardByChild($(el));
-                Caterpillar.DomService.getCardEtaValueInput(card).val(value);
-                Caterpillar.Core.updateTotalEstimation();
-                if (Caterpillar.Storage) {
-                    Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
+            beforeUpdate: function (event, data) {
+                return !data.newValue || !isNaN(parseInt(data.newValue));
+            },
+            update: function (event, data) {
+                var card = Caterpillar.DomService.getCardByChild(data.element);
+                Caterpillar.DomService.getCardEtaValueInput(card).val(data.newValue);
+                if (data.isUiUpdate) {
+                    _this.updateTotalEstimation();
+                    if (Caterpillar.Storage) {
+                        Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                    }
                 }
             }
         });
@@ -92,22 +100,24 @@ Caterpillar.Core = new function () {
             moveToEndOnStart: true,
             ctrlEnterToFinish: true,
             converter: Caterpillar.Util.descriptionToHtml,
-            update: function (event, el, value) {
-                var card = Caterpillar.DomService.getCardByChild($(el));
-                Caterpillar.DomService.getCardDescriptionValueInput(card).val(value);
+            create: function() {
+                var el = $(this);
+                var card = Caterpillar.DomService.getCardByChild(el);
+                Caterpillar.DomService.getCardDescriptionValueInput(card).val(el.ctEditOnClick("option", "value"));
                 Caterpillar.Core.autoFitDescription(card);
-                if (Caterpillar.Storage) {
-                    Caterpillar.Storage.saveOrUpdateStory(Caterpillar.Core.currentStoryToJson());
+            },
+            update: function (event, data) {
+                var card = Caterpillar.DomService.getCardByChild(data.element);
+                Caterpillar.DomService.getCardDescriptionValueInput(card).val(data.newValue);
+                _this.autoFitDescription(card);
+                if (data.isUiUpdate && Caterpillar.Storage) {
+                    Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
                 }
             }
         });
 
         _this.initTaskToolbar(cardTemplate);
         _this.makeCardResizable(cardTemplate);
-        if (updateStorageFlag && Caterpillar.Storage) {
-            Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
-        }
-
         return cardTemplate;
     };
 
@@ -116,19 +126,23 @@ Caterpillar.Core = new function () {
             var updateEstimation = Caterpillar.DomService.getAllCardsNoCondition().length == 0;
             var card;
             if (prependFlag == true) {
-                card = _this.addNewCard(true, _this.getFirstCard(), true);
+                card = _this.addNewCard(_this.getFirstCard(), true);
             } else {
-                card = _this.addNewCard(true);
+                card = _this.addNewCard();
             }
             if (Caterpillar.Selecting) {
                 Caterpillar.Selecting.setLastSelectedCard(card);
             }
             if (updateEstimation) {
-                //noinspection JSCheckFunctionSignatures
                 _this.updateTotalEstimation();
             }
+            if (Caterpillar.Storage) {
+                Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+            }
         } else {
-            Caterpillar.Util.alertWarn(MESSAGE_NULL_STORY_ID, TITLE_NULL_STORY_ID, startEditStoryId);
+            Caterpillar.Util.alertWarn(MESSAGE_NULL_STORY_ID, TITLE_NULL_STORY_ID, function () {
+                Caterpillar.DomService.getStoryIdInput().ctEditOnClick("startEdit");
+            });
         }
     };
 
@@ -156,7 +170,9 @@ Caterpillar.Core = new function () {
             _this.updateStoryInfoVisibility();
             //noinspection JSCheckFunctionSignatures
             _this.updateTotalEstimation();
-            Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+            if (Caterpillar.Storage) {
+                Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+            }
         }
     };
 
@@ -186,7 +202,7 @@ Caterpillar.Core = new function () {
                     cards.data("card-color", "purple");
                     break;
             }
-            if (updateStorage === true) {
+            if (updateStorage === true && Caterpillar.Storage) {
                 Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
             }
         }
@@ -202,7 +218,9 @@ Caterpillar.Core = new function () {
             _this.updateStoryInfoVisibility();
             //noinspection JSCheckFunctionSignatures
             _this.updateTotalEstimation();
-            Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+            if (Caterpillar.Storage) {
+                Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+            }
         }
     };
 
@@ -218,11 +236,12 @@ Caterpillar.Core = new function () {
                 });
                 _this.updateHiddenEndingCardsDiv();
                 _this.updateStoryInfoVisibility();
-                //noinspection JSCheckFunctionSignatures
                 _this.updateTotalEstimation();
                 _this.updateTaskIndexes();
                 Caterpillar.DomService.getStoryPage().ctPrintable("refresh");
-                Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                if (Caterpillar.Storage) {
+                    Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                }
             } else {
                 Caterpillar.Util.confirm(MESSAGE_REMOVE_TASKS_ON_DELETE, TITLE_REMOVE_TASKS_ON_DELETE,
                     _this.removeCards, [cards, true]);
@@ -233,19 +252,9 @@ Caterpillar.Core = new function () {
     this.updateCard = function (card, cardJson) {
         var isStory = Caterpillar.DomService.isStoryCard(card);
 
-        if (isStory == true) {
-            Caterpillar.DomService.getCardIdSpan(card).html(cardJson.id);
-            Caterpillar.DomService.getStoryIdInput().val(cardJson.id);
-            Caterpillar.DomService.getStoryIdValueInput().val(cardJson.id);
-            Caterpillar.DomService.getCardEtaSpan(card).html(Caterpillar.Util.estimationToString(cardJson.eta));
-
-            var etaVal = Caterpillar.Util.parseEstimation(cardJson.eta);
-            etaVal = etaVal != null ? etaVal : "";
-            Caterpillar.DomService.getCardEtaInput(card).val(etaVal);
-            Caterpillar.DomService.getCardEtaValueInput(card).val(etaVal);
-
-            var div = Caterpillar.DomService.getCardContentDiv(card);
-            var description = cardJson.description;
+        var description = cardJson.description;
+        if (isStory) {
+            Caterpillar.DomService.getStoryIdInput().ctEditOnClick("option", "value", cardJson.id);
             if (!description) {
                 if (Caterpillar.Util.isValidStoryId(cardJson.id) || !Caterpillar.HotKeys) {
                     description = "Story description";
@@ -253,20 +262,17 @@ Caterpillar.Core = new function () {
                     description = "Press Shift+O to open or create a story";
                 }
             }
-            div.html(Caterpillar.Util.descriptionToHtml(description));
-            Caterpillar.DomService.getCardDescriptionTextarea(card).val(description);
-            Caterpillar.DomService.getCardDescriptionValueInput(card).val(description);
-        } else {
-            Caterpillar.DomService.getCardEtaInput(card).ctEditOnClick("option", "value", cardJson.eta);
-            Caterpillar.DomService.getCardDescriptionTextarea(card).ctEditOnClick("option", "value", cardJson.description);
         }
 
         if (cardJson.width) {
             var cardWidth = Math.min(Math.max(cardJson.width, _this.MIN_CARD_WIDTH), _this.MAX_CARD_WIDTH);
             Caterpillar.DomService.getCardUiDiv(card).width(cardWidth);
         }
+
+        Caterpillar.DomService.getCardEtaInput(card).ctEditOnClick("option", "value", cardJson.eta);
+        Caterpillar.DomService.getCardDescriptionTextarea(card).ctEditOnClick("option", "value", description);
+
         _this.changeCardColor(card, cardJson.type, false);
-        _this.autoFitDescription(card);
     };
 
     this.updateTotalEstimation = function (notResetStoryEta) {
@@ -310,9 +316,7 @@ Caterpillar.Core = new function () {
 
             var totalEta = disabledTotalEta + enabledTotalEta;
             var storyCard = Caterpillar.DomService.getStoryCard();
-            Caterpillar.DomService.getCardEtaValueInput(storyCard).val(totalEta);
-            Caterpillar.DomService.getCardEtaInput(storyCard).val(totalEta);
-            Caterpillar.DomService.getStoryStoryEtaSpan().html(Caterpillar.Util.estimationToString(0));
+            Caterpillar.DomService.getCardEtaInput(storyCard).ctEditOnClick("option", "value", totalEta);
         }
 
         var disabledSpanText = "" + disabledTotalEta;
@@ -386,7 +390,7 @@ Caterpillar.Core = new function () {
     };
 
     this.createNewTaskCard = function (cardJson, pos) {
-        var cardTemplate = _this.addNewCard(false, pos);
+        var cardTemplate = _this.addNewCard(pos);
         if (cardJson.disabled) {
             Caterpillar.DomService.makeCardDisabled(cardTemplate);
         }
@@ -402,7 +406,9 @@ Caterpillar.Core = new function () {
                 var card = ui.element;
                 _this.autoFitDescription(card);
                 Caterpillar.DomService.getStoryPage().ctPrintable("refresh");
-                Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                if (Caterpillar.Storage) {
+                    Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                }
             }
         });
     };
@@ -416,7 +422,10 @@ Caterpillar.Core = new function () {
                 }
             }
         ).click(function () {
-                _this.addNewCard(true, Caterpillar.DomService.getCardByChild($(this)), false);
+                _this.addNewCard(Caterpillar.DomService.getCardByChild($(this)), false);
+                if (Caterpillar.Storage) {
+                    Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                }
             });
 
         Caterpillar.DomService.getAddNewToLeftButton(buttonSet).button(
@@ -426,10 +435,13 @@ Caterpillar.Core = new function () {
                 }
             }
         ).click(function () {
-                _this.addNewCard(true, Caterpillar.DomService.getCardByChild($(this)), true);
+                _this.addNewCard(Caterpillar.DomService.getCardByChild($(this)), true);
+                if (Caterpillar.Storage) {
+                    Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                }
             });
 
-        Caterpillar.DomService.getDisableTaskButton(buttonSet).button(
+        /*Caterpillar.DomService.getDisableTaskButton(buttonSet).button(
             {label: "Disable",
                 icons: {
                     primary: "ui-icon-cancel"
@@ -445,7 +457,7 @@ Caterpillar.Core = new function () {
                 }
             }).click(function () {
                 _this.enableCards(Caterpillar.DomService.getCardByChild($(this)));
-            });
+            });*/
 
         Caterpillar.DomService.getRemoveTaskButton(buttonSet).button(
             {label: "Remove",
@@ -463,6 +475,16 @@ Caterpillar.Core = new function () {
                 }
             }).click(function (event) {
                 Caterpillar.ContextMenu.showCardColorContextMenu(event, Caterpillar.DomService.getCardByChild($(this)));
+            });
+
+
+        Caterpillar.DomService.getMenuButton(buttonSet).button(
+            {label: "Menu",
+                icons: {
+                    primary: "ui-icon-gear"
+                }
+            }).click(function (event) {
+                Caterpillar.ContextMenu.showCardContextMenu(event, Caterpillar.DomService.getCardByChild($(this)));
             });
 
         buttonSet.buttonset();
@@ -568,11 +590,11 @@ Caterpillar.Core = new function () {
     };
 
     this.isLastCard = function (card) {
-        return card[0] == Caterpillar.Core.getLastCard()[0];
+        return card[0] == _this.getLastCard()[0];
     };
 
     this.isFirstCard = function (card) {
-        return card[0] == Caterpillar.Core.getFirstCard()[0];
+        return card[0] == _this.getFirstCard()[0];
     };
 
     this.removeAllTaskCards = function () {
@@ -641,23 +663,24 @@ Caterpillar.Core = new function () {
             Caterpillar.Storage.updateLastStoryId(window.localStorage.agileCaterpillarLastStoryId);
         }
 
-        Caterpillar.Core.removeAllTaskCards();
+        _this.removeAllTaskCards();
         var storyCard = Caterpillar.DomService.getStoryCard();
-        Caterpillar.Core.updateCard(storyCard, {id: lastStoryId, eta: 0, description: "", width: Caterpillar.Core.MIN_CARD_WIDTH, type: "default"});
 
         var isNew = false;
         var tasks;
         var story = Caterpillar.Storage.getStoryFromStorage(lastStoryId);
         if (story) {
             tasks = story.tasks;
-            Caterpillar.Core.updateCard(storyCard, story);
+            _this.updateCard(storyCard, story);
         } else if (Caterpillar.Util.isValidStoryId(lastStoryId)) {
             var projectId = Caterpillar.Util.getProjectIdFromStoryId(lastStoryId);
             story = Caterpillar.Settings.getDefaultStory(projectId);
             story.id = lastStoryId;
-            Caterpillar.Core.updateCard(storyCard, story);
+            _this.updateCard(storyCard, story);
             tasks = story.tasks;
             isNew = true;
+        } else {
+            _this.updateCard(storyCard, {id: lastStoryId, eta: 0, description: "", width: _this.MIN_CARD_WIDTH, type: "default"});
         }
 
         if (tasks && tasks.length > 0) {
@@ -665,7 +688,7 @@ Caterpillar.Core = new function () {
             for (var i = 0; i < tasks.length; i++) {
                 var task = tasks[i];
                 if (task) {
-                    Caterpillar.Core.createNewTaskCard(task);
+                    _this.createNewTaskCard(task);
                     if (Caterpillar.Util.parseEstimation(task.eta) == null) {
                         spikeExist = true;
                     }
@@ -673,13 +696,28 @@ Caterpillar.Core = new function () {
             }
         }
 
-        Caterpillar.Core.updateHiddenEndingCardsDiv();
-        Caterpillar.Core.updateStoryInfoVisibility();
-        Caterpillar.Core.updateTotalEstimation(true);
-        if (isNew == true) {
+        _this.updateHiddenEndingCardsDiv();
+        _this.updateStoryInfoVisibility();
+        _this.updateTotalEstimation(true);
+        if (Caterpillar.Storage && isNew) {
             Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
         }
         //noinspection JSValidateTypes
         $(window).scrollTop(0);
     };
+
+    this.removeCurrentStory = function () {
+        if (Caterpillar.Util.isNotEmptyIssueId(lastIssueId)) {
+            if (Caterpillar.Storage) {
+                Caterpillar.Storage.deleteStoryFromStorage(lastStoryId);
+            }
+            if (Caterpillar.History) {
+                Caterpillar.History.deleteFromStoryHistory(lastStoryId);
+            }
+        }
+
+        var newStory = Caterpillar.Util.generateStoryId(lastProjectId, Caterpillar.Settings.defaultIssueId);
+        _this.restoreStoryFromStorage(newStory);
+    };
+
 };
