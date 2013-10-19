@@ -33,7 +33,6 @@ Caterpillar.Storage = new function () {
         _this = t;
     };
 
-    //var lastIssueId;
     var storageItemPrefix = "cardStorage";
     var settingsKey = "Caterpillar.Settings";
 
@@ -61,6 +60,28 @@ Caterpillar.Storage = new function () {
                 var cardsStr = window.localStorage[storageItemPrefix + storyId];
                 if (cardsStr) {
                     story = JSON.parse(cardsStr);
+
+                    //convert old format
+                    var save = false;
+                    if (story.hasOwnProperty("type")) {
+                        story.color = story.type;
+                        delete story.type;
+                        save = true;
+                    }
+                    var tasks = story.tasks;
+                    if (tasks && tasks.length > 0) {
+                        for (var i = 0; i < tasks.length; i++) {
+                            var task = tasks[i];
+                            if (task.hasOwnProperty("type")) {
+                                task.color = task.type;
+                                delete task.type;
+                                save = true;
+                            }
+                        }
+                    }
+                    if (save) {
+                        window.localStorage[storageItemPrefix + storyId] = JSON.stringify(story);
+                    }
                 }
             }
         }
@@ -104,23 +125,15 @@ Caterpillar.Storage = new function () {
     };
 
     this.getLastStoryId = function () {
-        return lastStoryId;
-    };
-
-    this.updateLastStoryId = function (id) {
-        if (id) {
-            var projectId = Caterpillar.Util.getProjectIdFromStoryId(id);
-            lastIssueId = Caterpillar.Util.getIssueIdFromStoryId(id);
-
-            lastProjectId = projectId || lastProjectId;
-            lastIssueId = Caterpillar.Util.isNotEmptyIssueId(lastIssueId) ? lastIssueId : Caterpillar.Settings.defaultIssueId;
-        } else {
-            lastIssueId = Caterpillar.Settings.defaultIssueId;
-        }
-
-        lastStoryId = Caterpillar.Util.generateStoryId(lastProjectId, lastIssueId);
         if (window.localStorage) {
-            window.localStorage.agileCaterpillarLastStoryId = lastStoryId;
+            return window.localStorage.agileCaterpillarLastStoryId;
         }
     };
+
+    this.updateLastStoryId = function (storyId) {
+        if (window.localStorage) {
+            window.localStorage.agileCaterpillarLastStoryId = storyId;
+        }
+    };
+
 };

@@ -37,7 +37,8 @@
             moveToEndOnStart: false,
             stopOnBlur: true,
 
-            converter: undefined,
+            viewConverter: undefined,
+            valueConverter: undefined,
             keyValidator: undefined,
 
             //callbacks
@@ -99,7 +100,8 @@
                 });
 
             this._checkAndUpdateFuncOption("keyValidator", this.options.keyValidator);
-            this._checkAndUpdateFuncOption("converter", this.options.converter);
+            this._checkAndUpdateFuncOption("viewConverter", this.options.viewConverter);
+            this._checkAndUpdateFuncOption("valueConverter", this.options.valueConverter);
             this._checkAndUpdateFuncOption("beforeStart", this.options.beforeStart);
             this._checkAndUpdateFuncOption("start", this.options.start);
             this._checkAndUpdateFuncOption("beforeUpdate", this.options.beforeUpdate);
@@ -150,6 +152,10 @@
                 value = "";
             }
 
+            if ($.isFunction(this.options.valueConverter)) {
+                value = this.options.valueConverter.apply(this.element[0], [value]);
+            }
+
             if (initialUpdate !== true) {
                 if (oldValue === value) {
                     return;
@@ -168,15 +174,15 @@
             this.options.value = value;
             this.element.val(this.options.value);
 
-            if ($.isFunction(this.options.converter)) {
-                this._inputView.html(this.options.converter.apply(this.element[0], [this.options.value]));
+            if ($.isFunction(this.options.viewConverter)) {
+                this._inputView.html(this.options.viewConverter.apply(this.element[0], [value]));
             } else {
-                this._inputView.text(this.options.value);
+                this._inputView.text(value);
             }
             if (initialUpdate !== true) {
                 this._trigger("update", null, {
                     element: this.element,
-                    newValue: this.options.value,
+                    newValue: value,
                     oldValue: oldValue,
                     isUiUpdate: !explicitUpdate
                 });
@@ -194,8 +200,14 @@
             }
         },
 
-        _updateConverter: function (converter) {
-            var result = this._checkAndUpdateFuncOption("converter", converter);
+        _updateViewConverter: function (viewConverter) {
+            var result = this._checkAndUpdateFuncOption("viewConverter", viewConverter);
+            this._updateValue(this.options.value, true, true);
+            return result;
+        },
+
+        _updateValueConverter: function (valueConverter) {
+            var result = this._checkAndUpdateFuncOption("valueConverter", valueConverter);
             this._updateValue(this.options.value, true, true);
             return result;
         },
@@ -221,8 +233,11 @@
                 case "value":
                     value = this._updateValue(value, true);
                     break;
-                case "converter":
-                    value = this._updateConverter(value);
+                case "viewConverter":
+                    value = this._updateViewConverter(value);
+                    break;
+                case "valueConverter":
+                    value = this._updateValueConverter(value);
                     break;
                 case "viewTitle":
                     value = this._updateViewTitle(value);

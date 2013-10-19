@@ -35,6 +35,7 @@ $(document).ready(function () {
 
 
 Caterpillar.Settings = new function () {
+    var _this = this;
     this.defaultProjectId = "CT";
     this.defaultIssueId = "0000";
 
@@ -51,8 +52,17 @@ Caterpillar.Settings = new function () {
 
     this.bagTrackerIssueUrl = "https://github.com/v-leo/agile-caterpillar/issues/";
 
+    this.dialogMessages = {
+        MESSAGE_NULL_STORY_ID: "Please open story or create new one.",
+        TITLE_NULL_STORY_ID: "Story id is not defined",
+        MESSAGE_REMOVE_STORY: "Story will be permanently deleted and cannot be recovered. Are you sure?",
+        TITLE_REMOVE_STORY: "Remove story?",
+        MESSAGE_REMOVE_TASKS_ON_DELETE: "All selected tasks will be permanently deleted and cannot be recovered. Are you sure?",
+        TITLE_REMOVE_TASKS_ON_DELETE: "Remove tasks?"
+    };
+
     this.getDefaultStory = function (projectId) {
-        return Caterpillar.Settings.defaultStoryTemplates[projectId];
+        return _this.defaultStoryTemplates[projectId];
     };
 
 };

@@ -34,7 +34,7 @@ Caterpillar.Util = new function () {
     };
 
     this.DASH = "-";
-    this.defaultStoryId = Caterpillar.Settings.defaultProjectId + this.DASH + Caterpillar.Settings.defaultIssueId;
+
 
     this.isNotEmptyIssueId = function (issueId) {
         return _this.isNumber(issueId) && !/^0*$/.test(issueId)
@@ -100,7 +100,7 @@ Caterpillar.Util = new function () {
                 }
             }
         } else {
-            return _this.defaultStoryId;
+            return _this.generateStoryId(Caterpillar.Settings.defaultProjectId, Caterpillar.Settings.defaultIssueId);
         }
     };
 

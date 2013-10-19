@@ -24,8 +24,25 @@
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var Caterpillar = Caterpillar || {};
+
+$(document).ready(function () {
+    Caterpillar.Core.__initCSS();
+    Caterpillar.Core.__initStoryCard();
+    Caterpillar.Core.__initTasksContainer();
+    Caterpillar.Core.__initHotKeys();
+
+    if (Caterpillar.DomService.isShowDisabledCards()) {
+        Caterpillar.DomService.getStoryPage().ctPrintable({items: "li.card-item,div.story-item"});
+    } else {
+        Caterpillar.DomService.getStoryPage().ctPrintable({items: "li.card-item:not(.disabled-card),div.story-item"});
+    }
+    Caterpillar.Core.drawStoryById();
+});
+
 Caterpillar.Core = new function () {
-    var _this = this;
+    var _this = this,
+        defaultStoryId = Caterpillar.Util.generateStoryId(Caterpillar.Settings.defaultProjectId, Caterpillar.Settings.defaultIssueId),
+        lastStoryId = defaultStoryId;
 
     //Need for tests
     this.__setThis__ = function (t) {
@@ -69,17 +86,16 @@ Caterpillar.Core = new function () {
             keyValidator: function (event, which) {
                 return (which < 48 && which != 32) || !isNaN(parseInt(String.fromCharCode(which)));
             },
-            converter: function (value) {
-                value = Caterpillar.Util.checkAndFixNumberValue(value);
+            valueConverter: function (value) {
+                return Caterpillar.Util.checkAndFixNumberValue(value);
+            },
+            viewConverter: function (value) {
                 return Caterpillar.Util.estimationToString(value);
             },
-            create: function() {
+            create: function () {
                 var el = $(this);
                 var card = Caterpillar.DomService.getCardByChild(el);
                 Caterpillar.DomService.getCardEtaValueInput(card).val(el.ctEditOnClick("option", "value"));
-            },
-            beforeUpdate: function (event, data) {
-                return !data.newValue || !isNaN(parseInt(data.newValue));
             },
             update: function (event, data) {
                 var card = Caterpillar.DomService.getCardByChild(data.element);
@@ -91,7 +107,11 @@ Caterpillar.Core = new function () {
                     }
                 }
             }
-        });
+        }).spinner({
+                max: 99,
+                min: 0,
+                page: 3
+            });
 
         //init card description textarea
         Caterpillar.DomService.getCardDescriptionTextarea(cardTemplate).ctEditOnClick({
@@ -99,12 +119,12 @@ Caterpillar.Core = new function () {
             viewClass: "content-div",
             moveToEndOnStart: true,
             ctrlEnterToFinish: true,
-            converter: Caterpillar.Util.descriptionToHtml,
-            create: function() {
+            viewConverter: Caterpillar.Util.descriptionToHtml,
+            create: function () {
                 var el = $(this);
                 var card = Caterpillar.DomService.getCardByChild(el);
                 Caterpillar.DomService.getCardDescriptionValueInput(card).val(el.ctEditOnClick("option", "value"));
-                Caterpillar.Core.autoFitDescription(card);
+                _this.autoFitDescription(card);
             },
             update: function (event, data) {
                 var card = Caterpillar.DomService.getCardByChild(data.element);
@@ -116,8 +136,8 @@ Caterpillar.Core = new function () {
             }
         });
 
-        _this.initTaskToolbar(cardTemplate);
-        _this.makeCardResizable(cardTemplate);
+        _this.__initTaskToolbar(cardTemplate);
+        _this.__makeCardResizable(cardTemplate);
         return cardTemplate;
     };
 
@@ -140,9 +160,11 @@ Caterpillar.Core = new function () {
                 Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
             }
         } else {
-            Caterpillar.Util.alertWarn(MESSAGE_NULL_STORY_ID, TITLE_NULL_STORY_ID, function () {
-                Caterpillar.DomService.getStoryIdInput().ctEditOnClick("startEdit");
-            });
+            Caterpillar.Util.alertWarn(Caterpillar.Settings.dialogMessages.MESSAGE_NULL_STORY_ID,
+                Caterpillar.Settings.dialogMessages.TITLE_NULL_STORY_ID,
+                function () {
+                    Caterpillar.DomService.getStoryIdInput().ctEditOnClick("startEdit");
+                });
         }
     };
 
@@ -243,7 +265,8 @@ Caterpillar.Core = new function () {
                     Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
                 }
             } else {
-                Caterpillar.Util.confirm(MESSAGE_REMOVE_TASKS_ON_DELETE, TITLE_REMOVE_TASKS_ON_DELETE,
+                Caterpillar.Util.confirm(Caterpillar.Settings.dialogMessages.MESSAGE_REMOVE_TASKS_ON_DELETE,
+                    Caterpillar.Settings.dialogMessages.TITLE_REMOVE_TASKS_ON_DELETE,
                     _this.removeCards, [cards, true]);
             }
         }
@@ -272,7 +295,7 @@ Caterpillar.Core = new function () {
         Caterpillar.DomService.getCardEtaInput(card).ctEditOnClick("option", "value", cardJson.eta);
         Caterpillar.DomService.getCardDescriptionTextarea(card).ctEditOnClick("option", "value", description);
 
-        _this.changeCardColor(card, cardJson.type, false);
+        _this.changeCardColor(card, cardJson.color, false);
     };
 
     this.updateTotalEstimation = function (notResetStoryEta) {
@@ -399,7 +422,7 @@ Caterpillar.Core = new function () {
     };
 
 
-    this.makeCardResizable = function (card) {
+    this.__makeCardResizable = function (card) {
         Caterpillar.DomService.getCardUiDiv(card).resizable({
             handles: "e",
             stop: function (event, ui) {
@@ -413,7 +436,7 @@ Caterpillar.Core = new function () {
         });
     };
 
-    this.initTaskToolbar = function (card) {
+    this.__initTaskToolbar = function (card) {
         var buttonSet = Caterpillar.DomService.getCardToolbarButtonSet(card);
         Caterpillar.DomService.getAddNewToRightButton(buttonSet).button(
             {label: "New",
@@ -442,22 +465,22 @@ Caterpillar.Core = new function () {
             });
 
         /*Caterpillar.DomService.getDisableTaskButton(buttonSet).button(
-            {label: "Disable",
-                icons: {
-                    primary: "ui-icon-cancel"
-                }
-            }).click(function () {
-                _this.disableCards(Caterpillar.DomService.getCardByChild($(this)));
-            });
+         {label: "Disable",
+         icons: {
+         primary: "ui-icon-cancel"
+         }
+         }).click(function () {
+         _this.disableCards(Caterpillar.DomService.getCardByChild($(this)));
+         });
 
-        Caterpillar.DomService.getEnableTaskButton(buttonSet).button(
-            {label: "Enable",
-                icons: {
-                    primary: "ui-icon-plus"
-                }
-            }).click(function () {
-                _this.enableCards(Caterpillar.DomService.getCardByChild($(this)));
-            });*/
+         Caterpillar.DomService.getEnableTaskButton(buttonSet).button(
+         {label: "Enable",
+         icons: {
+         primary: "ui-icon-plus"
+         }
+         }).click(function () {
+         _this.enableCards(Caterpillar.DomService.getCardByChild($(this)));
+         });*/
 
         Caterpillar.DomService.getRemoveTaskButton(buttonSet).button(
             {label: "Remove",
@@ -516,7 +539,7 @@ Caterpillar.Core = new function () {
         }
         var color = card.data("card-color");
         if (color) {
-            cardJson.type = color;
+            cardJson.color = color;
         }
         var width = Caterpillar.DomService.getCardUiDiv(card).width();
         if (width > _this.MIN_CARD_WIDTH) {
@@ -656,11 +679,15 @@ Caterpillar.Core = new function () {
         });
     };
 
-    this.restoreStoryFromStorage = function (storyId) {
+    this.refreshCurrentStory = function () {
+        _this.drawStoryById(lastStoryId);
+    };
+
+    this.drawStoryById = function (storyId) {
         if (storyId) {
-            Caterpillar.Storage.updateLastStoryId(storyId);
-        } else if (window.localStorage && window.localStorage.agileCaterpillarLastStoryId) {
-            Caterpillar.Storage.updateLastStoryId(window.localStorage.agileCaterpillarLastStoryId);
+            _this.__setLastStoryId(storyId);
+        } else if (Caterpillar.Storage) {
+            _this.__setLastStoryId(Caterpillar.Storage.getLastStoryId());
         }
 
         _this.removeAllTaskCards();
@@ -673,12 +700,14 @@ Caterpillar.Core = new function () {
             tasks = story.tasks;
             _this.updateCard(storyCard, story);
         } else if (Caterpillar.Util.isValidStoryId(lastStoryId)) {
+            isNew = true;
             var projectId = Caterpillar.Util.getProjectIdFromStoryId(lastStoryId);
             story = Caterpillar.Settings.getDefaultStory(projectId);
-            story.id = lastStoryId;
-            _this.updateCard(storyCard, story);
-            tasks = story.tasks;
-            isNew = true;
+            if (story) {
+                story.id = lastStoryId;
+                _this.updateCard(storyCard, story);
+                tasks = story.tasks;
+            }
         } else {
             _this.updateCard(storyCard, {id: lastStoryId, eta: 0, description: "", width: _this.MIN_CARD_WIDTH, type: "default"});
         }
@@ -702,22 +731,265 @@ Caterpillar.Core = new function () {
         if (Caterpillar.Storage && isNew) {
             Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
         }
-        //noinspection JSValidateTypes
         $(window).scrollTop(0);
     };
 
     this.removeCurrentStory = function () {
-        if (Caterpillar.Util.isNotEmptyIssueId(lastIssueId)) {
-            if (Caterpillar.Storage) {
-                Caterpillar.Storage.deleteStoryFromStorage(lastStoryId);
-            }
-            if (Caterpillar.History) {
-                Caterpillar.History.deleteFromStoryHistory(lastStoryId);
-            }
+        if (Caterpillar.Storage) {
+            Caterpillar.Storage.deleteStoryFromStorage(lastStoryId);
+        }
+        if (Caterpillar.History) {
+            Caterpillar.History.deleteFromStoryHistory(lastStoryId);
         }
 
-        var newStory = Caterpillar.Util.generateStoryId(lastProjectId, Caterpillar.Settings.defaultIssueId);
-        _this.restoreStoryFromStorage(newStory);
+        _this.drawStoryById(defaultStoryId);
     };
 
+    this.__setLastStoryId = function (storyId) {
+        var projectId = Caterpillar.Settings.defaultProjectId;
+        var issueId = Caterpillar.Settings.defaultIssueId;
+        if (storyId) {
+            projectId = Caterpillar.Util.getProjectIdFromStoryId(storyId) || projectId;
+            issueId = Caterpillar.Util.getIssueIdFromStoryId(storyId);
+
+            issueId = Caterpillar.Util.isNotEmptyIssueId(issueId) ? issueId : Caterpillar.Settings.defaultIssueId;
+        }
+
+        lastStoryId = Caterpillar.Util.generateStoryId(projectId, issueId);
+        if (Caterpillar.Storage) {
+            Caterpillar.Storage.updateLastStoryId(lastStoryId);
+        }
+    };
+
+    this.__initCSS = function () {
+        if ($.browser.webkit) {
+            var cssStyle = $("<style>");
+            cssStyle.attr("type", "text/css");
+            cssStyle.html(
+                "ol.wiki-list {margin: 0 0 0 1.27em;}\n" +
+                    ".wiki-list ol.wiki-list {margin: 0 0 0 1.2em;}\n" +
+                    ".wiki-list .wiki-list ol.wiki-list {margin: 0 0 0 1.2em;}\n" +
+                    "div.ol-list-container {margin: 0 0 0 -0.3em;}\n" +
+                    ".wiki-list ol.wiki-list div.ol-list-container {margin: 0 0 0 -0.28em;}\n" +
+
+                    "ul.wiki-list {margin: 0 0 0 1.1em;}\n" +
+                    ".wiki-list ul.wiki-list {margin: 0 0 0 1em;}\n" +
+                    "div.ul-list-container {margin: 0 0 0 -0.15em;}\n" +
+                    ".wiki-list ul.wiki-list div.ul-list-container {margin: 0 0 0 -0.08em;}\n" +
+
+                    "div.wiki-tab {margin: 0; padding: 0 0 0 0.94em;}\n");
+
+            $("head").append(cssStyle);
+        }
+    };
+
+    this.__initTasksContainer = function () {
+        Caterpillar.DomService.getTasksContainer().sortable({
+            items: "li.card-item",
+            handle: "div.card-label",
+            tolerance: "pointer",
+            scroll: true,
+            update: function () {
+                _this.updateTaskIndexes();
+                Caterpillar.DomService.getStoryPage().ctPrintable("refresh");
+                if (Caterpillar.Storage) {
+                    Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                }
+            }});
+    };
+
+
+    this.__initHotKeys = function () {
+        if (Caterpillar.HotKeys) {
+            Caterpillar.HotKeys.registerHotKey({
+                keyCode: 78,
+                shiftKey: true,
+                callback: _this.addNewCardIfStoryIdValid,
+                condition: Caterpillar.HotKeys.notInputNotTextareaNotOverlay
+            });
+
+            Caterpillar.HotKeys.registerHotKey({
+                keyCode: 79,
+                shiftKey: true,
+                callback: function () {
+                    event.stopPropagation();
+                    Caterpillar.DomService.getStoryIdInput().ctEditOnClick("startEdit")
+                },
+                condition: Caterpillar.HotKeys.notInputNotTextareaNotOverlay
+            });
+
+            Caterpillar.HotKeys.registerHotKey({
+                keyCode: [107, 187],
+                shiftKey: true,
+                callback: function () {
+                    _this.setShowDisabledCards(true);
+                },
+                condition: Caterpillar.HotKeys.notInputNotTextareaNotOverlay
+            });
+
+            Caterpillar.HotKeys.registerHotKey({
+                keyCode: [109, 189],
+                shiftKey: true,
+                callback: function () {
+                    _this.setShowDisabledCards(false);
+                },
+                condition: Caterpillar.HotKeys.notInputNotTextareaNotOverlay
+            });
+        }
+    };
+
+    this.__initStoryCardToolbar = function () {
+        var buttonSet = Caterpillar.DomService.getCardToolbarButtonSet(Caterpillar.DomService.getStoryCard());
+        Caterpillar.DomService.getAddNewToRightButton(buttonSet).button(
+            {label: "New",
+                icons: {
+                    secondary: "ui-icon-triangle-1-e"
+                }
+            }
+        ).click(function () {
+                _this.addNewCardIfStoryIdValid(true);
+            });
+
+        Caterpillar.DomService.getRemoveStoryButton(buttonSet).button(
+            {label: "Remove",
+                icons: {
+                    primary: "ui-icon-trash"
+                }
+            }).click(function () {
+                if (Caterpillar.Util.isValidStoryId(lastStoryId)) {
+                    Caterpillar.Util.confirm(Caterpillar.Settings.dialogMessages.MESSAGE_REMOVE_STORY,
+                        Caterpillar.Settings.dialogMessages.TITLE_REMOVE_STORY, _this.removeCurrentStory);
+                }
+            });
+
+        Caterpillar.DomService.getColorButton(buttonSet).button(
+            {label: "Color",
+                icons: {
+                    primary: "ui-icon-tag"
+                }
+            }).click(function (event) {
+                Caterpillar.ContextMenu.showCardColorContextMenu(event, Caterpillar.DomService.getCardByChild($(this)));
+            });
+
+        buttonSet.buttonset();
+    };
+
+    this.__initStoryCard = function () {
+        var storyCard = Caterpillar.DomService.getStoryCard();
+
+        _this.__makeCardResizable(storyCard);
+        _this.__initStoryCardToolbar();
+
+        Caterpillar.DomService.getShowDisabledSwitcher().click(function () {
+            _this.setShowDisabledCards(!Caterpillar.DomService.isShowDisabledCards());
+        });
+
+        Caterpillar.DomService.getShowTotalInfoSwitcher().click(function () {
+            Caterpillar.DomService.showTotalEstimation();
+        });
+
+        Caterpillar.DomService.getShowEnabledInfoSwitcher().click(function () {
+            Caterpillar.DomService.showEnabledEstimation();
+        });
+
+
+        Caterpillar.DomService.getStoryIdInput().ctEditOnClick({
+            value: defaultStoryId,
+            viewTitle: "Create/Open story (Shift+O)",
+            viewConverter: function (value) {
+                return Caterpillar.Util.checkAndFixStoryIdValue(value.toUpperCase());
+            },
+            keyValidator: function (event, which) {
+                return which < 48 || which == 189 || Caterpillar.Util.isAlphanumeric(String.fromCharCode(which))
+            },
+            start: function (event, data) {
+                var dashIndex = data.element.val().indexOf(Caterpillar.Util.DASH);
+                if (dashIndex > -1) {
+                    data.element[0].setSelectionRange(dashIndex + 1, data.element.val().length);
+                }
+            },
+            create: function () {
+                var el = $(this);
+                Caterpillar.DomService.getStoryIdValueInput().val(el.ctEditOnClick("option", "value"));
+            },
+            update: function (event, data) {
+                Caterpillar.DomService.getStoryIdValueInput().val(data.newValue);
+                if (Caterpillar.History) {
+                    Caterpillar.History.addToStoryHistory(data.newValue,
+                        Caterpillar.DomService.getCardDescriptionValueInput(Caterpillar.DomService.getStoryCard()).val());
+                }
+
+                if (data.isUiUpdate) {
+                    Caterpillar.DomService.getStoryIdInput().autocomplete("close");
+                    _this.drawStoryById(data.newValue);
+                } else {
+                    _this.__setLastStoryId(data.newValue);
+                }
+            },
+            cancel: function (event, data) {
+                data.element.ctEditOnClick("refresh");
+            }
+        });
+
+        Caterpillar.DomService.getCardEtaInput(storyCard).ctEditOnClick({
+            selectOnStart: true,
+            maxLength: 3,
+            value: 0,
+            viewTitle: "Story estimation",
+            viewClass: "story-eta",
+            keyValidator: function (event, which) {
+                return (which < 48 && which != 32) || !isNaN(parseInt(String.fromCharCode(which)));
+            },
+            valueConverter: function (value) {
+                return Caterpillar.Util.checkAndFixNumberValue(value);
+            },
+            viewConverter: function (value) {
+                return Caterpillar.Util.estimationToString(value);
+            },
+            create: function () {
+                var el = $(this);
+                var card = Caterpillar.DomService.getCardByChild(el);
+                Caterpillar.DomService.getCardEtaValueInput(card).val(el.ctEditOnClick("option", "value"));
+            },
+            beforeStart: function () {
+                if (Caterpillar.DomService.getAllCardsNoCondition().length > 0) {
+                    Caterpillar.Util.alertWarn("You can change story estimation only for empty story.");
+                    return false;
+                }
+                return true;
+            },
+            update: function (event, data) {
+                var card = Caterpillar.DomService.getCardByChild(data.element);
+                Caterpillar.DomService.getCardEtaValueInput(card).val(data.newValue);
+                if (data.isUiUpdate && Caterpillar.Storage) {
+                    Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                }
+            }
+        });
+
+        Caterpillar.DomService.getCardDescriptionTextarea(storyCard).ctEditOnClick({
+            value: "Story description",
+            viewClass: "content-div",
+            moveToEndOnStart: true,
+            ctrlEnterToFinish: true,
+            viewConverter: Caterpillar.Util.descriptionToHtml,
+            create: function () {
+                var el = $(this);
+                var card = Caterpillar.DomService.getCardByChild(el);
+                Caterpillar.DomService.getCardDescriptionValueInput(card).val(el.ctEditOnClick("option", "value"));
+                _this.autoFitDescription(card);
+            },
+            update: function (event, data) {
+                var card = Caterpillar.DomService.getCardByChild(data.element);
+                Caterpillar.DomService.getCardDescriptionValueInput(card).val(data.newValue);
+                _this.autoFitDescription(card);
+                if (Caterpillar.History) {
+                    Caterpillar.History.addToStoryHistory(Caterpillar.DomService.getStoryIdValueInput().val(), data.newValue);
+                }
+                if (data.isUiUpdate && Caterpillar.Storage) {
+                    Caterpillar.Storage.saveOrUpdateStory(_this.currentStoryToJson());
+                }
+            }
+        });
+    }
 };

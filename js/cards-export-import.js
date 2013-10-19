@@ -234,7 +234,7 @@ Caterpillar.ExpImp = new function () {
             text = exportHolder.jsonAllStr;
         } else {
             if (!exportHolder.json) {
-                exportHolder.json = Caterpillar.Storage.getStoryFromStorage(lastStoryId);
+                exportHolder.json = Caterpillar.Core.currentStoryToJson();
                 exportHolder.jsonStr = JSON.stringify(exportHolder.json);
             }
             text = exportHolder.jsonStr;
@@ -398,7 +398,7 @@ Caterpillar.ExpImp = new function () {
         }
 
         if (stories.length > 0 && updateCurrentStory == true) {
-            Caterpillar.Core.restoreStoryFromStorage(Caterpillar.DomService.getStoryIdValueInput().val());
+            Caterpillar.Core.refreshCurrentStory();
         }
 
         Caterpillar.Util.alertInfo(stories.length + " stories have been imported: " + importedStories.toString());
