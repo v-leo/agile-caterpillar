@@ -24,6 +24,10 @@ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+html, body {
+    height: 100%;
+}
+
 html, body, p {
     padding: 0;
     margin: 0;
@@ -55,6 +59,10 @@ body {
     display: block !important;
 }
 */
+
+#story-page {
+    height: 95%;
+}
 
 div.card {
     border: #222222 solid 3px;
@@ -303,17 +311,16 @@ div.card-header td.card-eta input {
     font-size: 11pt;
 }
 
-div.ct-editable-view ~ span.ui-spinner{
+div.ct-editable-view ~ span.ui-spinner {
     display: none;
     float: right;
 }
 
-div.ct-editable-view.ct-editable-edit ~ span.ui-spinner{
+div.ct-editable-view.ct-editable-edit ~ span.ui-spinner {
     display: table-cell;
 }
 
-
-div.card-header td.card-eta span.ui-spinner{
+div.card-header td.card-eta span.ui-spinner {
     margin: 0 7px 0 0;
 }
 
@@ -930,4 +937,40 @@ div.card-label {
     margin-top: 0.4em;
     border-color: #6d6ddf;
     background-color: #c4c2ff;
+}
+
+div.copyright-footer * {
+    float: left;
+}
+
+div.copyright-footer {
+    font-family: Arial, sans-serif;
+    font-size: 9pt;
+    color: #595959;
+    clear: both;
+    margin: 0 0 0 -220px;
+    padding: 10px 0 5px 50%;
+    height: 5%;
+
+    overflow: visible;
+    display: table;
+    vertical-align: bottom;
+}
+
+div.copyright-footer .bull-separator {
+    margin: 0 4px 0 4px;
+    font-size: 16px;
+    color: #808080;
+    height: 5px;
+}
+
+div.copyright-footer a.powered-by-link {
+    margin: 0 0 0 4px;
+}
+
+
+@media print {
+    div.copyright-footer {
+        display: none;
+    }
 }

@@ -28,8 +28,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 <head>
     <title>Agile Caterpillar dashboard</title>
     <meta content="text/html; charset=utf-8" http-equiv="content-type">
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-	<link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta name="description" content="Agile Caterpillar - the tool for creating user story cards adapted for printing">
+    <meta name="keywords" content="agile, scrum, story, user story, card, task, task card">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
 
     <link href="../css/sunny/jquery-ui-1.9.1.custom.min.css" rel="stylesheet">
 
@@ -37,6 +39,21 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     <link href="../css/ct-printable.css" rel="stylesheet">
 
     <link href="../css/cards.css" rel="stylesheet">
+
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-45143107-1']);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+            var ga = document.createElement('script');
+            ga.type = 'text/javascript';
+            ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
 
     <!--<script src="../lib/jQuery/jquery-1.8.3.min.js" type="text/javascript"></script>-->
     <!--<script src="../lib/jQuery/ui/jquery-ui-1.9.1.custom.min.js" type="text/javascript"></script>-->
@@ -111,8 +128,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                             <input id="story-id-input" class="card-id-input" type="text" value="CS-0000"/>
                         </td>
                         <td class="card-eta">
-                            <div id="enabled-eta-span" class="enabled-eta" title="Story estimation. You can change story estimation only for empty story.">0 PEH</div>
-                            <div id="total-eta-span" class="total-eta" title="Story estimation. You can change story estimation only for empty story.">0 PEH</div>
+                            <div id="enabled-eta-span" class="enabled-eta"
+                                 title="Story estimation. You can change story estimation only for empty story.">0 PEH
+                            </div>
+                            <div id="total-eta-span" class="total-eta"
+                                 title="Story estimation. You can change story estimation only for empty story.">0 PEH
+                            </div>
                             <input id="story-eta-input" class="card-eta-input" type="text" value="0" maxlength="3"/>
                         </td>
                     </tr>
@@ -128,8 +149,10 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
                             </div>
                             <div id="show-disabled-switcher" class="cards-info disabled-info"
                                  title="Show disabled cards">
-                                <span id="hide-disabled-span" title="Hide disabled cards (Shift+[-])">Hide disabled: </span>
-                                <span id="show-disabled-span" title="Show disabled cards (Shift+[+])">Show disabled: </span>
+                                <span id="hide-disabled-span"
+                                      title="Hide disabled cards (Shift+[-])">Hide disabled: </span>
+                                <span id="show-disabled-span"
+                                      title="Show disabled cards (Shift+[+])">Show disabled: </span>
                                 <span id="disabled-counter-span"></span>
                             </div>
                         </td>
@@ -160,7 +183,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
     <ul id="tasks-container">
     </ul>
 </div>
-<div id="hidden-ending-cards" class="hidden-cards-div" title="There are hidden disabled cards (Shift+[+] to show)"></div>
+<div id="hidden-ending-cards" class="hidden-cards-div"
+     title="There are hidden disabled cards (Shift+[+] to show)"></div>
 
 <ul style="display: none;">
     <li id="card-template" class="card-item">
@@ -458,6 +482,16 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         </a>
     </li>
 </ul>
-
+<div class="copyright-footer">
+    <span class="copyright">Copyright 2013 Vladimir Leontyev</span>
+    <span class="bull-separator">&bull;</span>
+    <a class="github-link" target="_blank" href="https://github.com/v-leo/agile-caterpillar">Agile Caterpillar on
+        GitHub</a>
+    <span class="bull-separator">&bull;</span>
+    <span class="powered-by">
+        <p>Powered by</p>
+        <a class="powered-by-link" target="_blank" href="http://jquery.com/">jQuery</a>
+    </span>
+</div>
 </body>
 </html>

@@ -63,7 +63,7 @@
             page.addClass("ct-printable ct-printable-page");
             this._updatePageSize(this.options.size, false);
             page.width(this._pageWidth);
-            page.height(this._pageHeight);
+            //page.height(this._pageHeight);
             page.css("padding", "0 " + this.options.padding.right + px + " 0 " + this.options.padding.left + px);
             this.refresh();
         },
